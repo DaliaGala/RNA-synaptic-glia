@@ -1,0 +1,220 @@
+---
+title: "RNAseq_analysis"
+author: "Jeff Lee"
+date: "16/12/2021"
+output: html_document
+---
+
+# INTRODUCTION 
+
+R Markdown document to re-analyse RNA-seq from glial end-processes. 
+Raw data handling and kallisto mappings are performed in @mprocessor1 while DESeq2 is run locally. 
+
+# RNA SEQUENCING ANALYSIS
+
+## Raw Data Handling
+
+### Download fastq data from SRA
+
+Fastq curl links are obtained from https://sra-explorer.info
+
+```{bash}
+## @mprocessor1
+## project dir = /usr/people/sjoh4548/Data/Sequencing
+
+mkdir -p DGS_review/Rawfastq
+
+## Get curl links
+cd DGS_review/Rawfastq
+
+
+
+
+cd ../..
+
+```
+
+### Run fastQC (optional)
+
+```{bash}
+mkdir -p DSG_review/Rawfastq/FastQC
+
+# Run fastqc
+for file in DSG_review/Rawfastq/*.fastq.gz
+do
+echo "Processing file $file"
+fastqc $file -o DSG_review/Rawfastq/FastQC
+echo ""
+done 
+
+# Run multiqc
+mkdir -p DSG_review/Rawfastq/multiqc
+
+multiqc -f \
+DSG_review/Rawfastq/FastQC/*_fastqc.zip \
+-o DSG_review/Rawfastq/multiqc \
+-n MultiQC_FastQC_Sequencing-runs_raw_report
+
+```
+
+## Remove Adapters
+
+* Illumina Tru-seq AGATCGGAAGAGCACACGTCTGAACTCCAGTCA
+* NuGen SPIA CTTTGTGTTTGA
+
+```{bash}
+mkdir -p DSG_review/trimmed
+
+for file in DSG_review/Rawfastq/*.fastq.gz
+do
+echo "Processing file $file"
+base=$(basename "$file") 
+outfile="$(echo ${base} |sed -e 's/.fastq.gz/_trimmed.fastq.gz/')" 
+cutadapt \
+-a AGATCGGAAGAGCACACGTCTGAACTCCAGTCA \
+-a CTTTGTGTTTGA \
+--times 2 \
+--cores=4 \
+-m 30 \
+--trim-n \
+--report=minimal \
+-o DSG_review/trimmed/$outfile \
+$file
+echo ""
+done
+
+```
+
+## Filter Contaminant Reads
+
+* Ribosomal RNA
+* Mitochondrial ribosomal RNA
+* PolyA/C ...
+* PhiX
+
+```{bash}
+mkdir -p DSG_review/filtered
+
+for file in DSG_review/trimmed/*_trimmed.fastq.gz
+do
+echo "Processing file $file"
+base=$(basename "$file") 
+outfile="$(echo ${base} |sed -e 's/_trimmed.fastq.gz/_filtered.fastq.gz/')" 
+outstat="$(echo ${base} |sed -e 's/_trimmed.fastq.gz/_filtered.stat.txt/')" 
+bbduk.sh in=$file \
+out=DSG_review/filtered/$outfile \
+ref=GENOMEDIR/contaminants/Dmel_lrRNA_large.fasta,GENOMEDIR/contaminants/Dmel_rRNA_NCBI.fasta,GENOMEDIR/contaminants/polyA_polyC.fasta,GENOMEDIR/contaminants/phix174_ill.ref.fa.gz \
+k=27 \
+hdist=1 \
+-Xmx32g \
+stats=DSG_review/filtered/$outstat
+echo ""
+done
+
+```
+
+## Mapping With Kallisto
+
+### Download genomes and annotations
+
+* ENSEMBL mouse 96
+* ENSEMBL rat
+
+```{bash}
+
+```
+
+
+### Create kallisto index with introns
+
+```{bash}
+mkdir -p GENOMEDIR/kallisto/mouse
+
+kb ref -i GENOMEDIR/kallisto/mouse/kallisto_index_dmel_ensembl99_cdna_intron \
+-g GENOMEDIR/kallisto/mouse/kb_output_t2g.txt \
+-f1 GENOMEDIR/kallisto/mouse/kb_output_cdna.fa \
+-f2 GENOMEDIR/kallisto/mouse/kb_output_intron.fa \
+-c1 GENOMEDIR/kallisto/mouse/kb_output_cdna_t2c.txt \
+-c2 GENOMEDIR/kallisto/mouse/kb_output_intron_t2c.txt \
+--workflow lamanno \
+GENOMEDIR/Drosophila_melanogaster.BDGP6.28.dna.toplevel.fa.gz \
+GENOMEDIR/Drosophila_melanogaster.BDGP6.28.99.gtf
+
+```
+
+### Pseudoalign to transcriptome
+
+```{bash}
+mkdir -p DSG_review/kallisto_results
+
+for file in DSG_review/filtered/*.fastq.gz 
+do 
+echo "Processing file $file" 
+base=$(basename "$file") 
+outfolder="$(echo ${base} |sed -e 's/_filtered.fastq.gz//')" 
+mkdir -p DSG_review/kallisto_results/$outfolder
+
+kallisto quant \
+-i GENOMEDIR/kallisto/kallisto_index_dmel_ensembl99_cdna_intron \
+-o DSG_review/kallisto_results/$outfolder \
+-b 100 \
+--single \
+-l 200 \
+-s 30 \
+-t 4 \
+$file 
+
+echo ""
+done
+
+```
+
+## Preprocessing Data Tables
+
+### Get TPM dataframe
+
+```{r}
+library(tidyverse)
+
+```
+
+### Get count data for DESeq2 
+
+```{r}
+library(tidyverse)
+library(tximport)
+library(rhdf5)
+
+## Get sample metadata
+sample_id <- dir("./data/external/DGS_review/kallisto_results/")
+kal_dirs <- file.path("./data/external/DGS_review/kallisto_results", sample_id)
+
+files <- file.path(kal_dirs, "abundance.h5")
+names(files) <- sample_id # names for the matrices
+all(file.exists(files))
+
+## Get tx2gene table 
+tx2gene <- read_csv("./data/external/Dmel_tx2gene_ENSEMBL_v99_cdna_intron.csv")
+t2g <- tx2gene %>%
+  dplyr::select(tx_id, gene_id)
+
+## Import with kallisto
+gni_kallisto <- tximport(files,
+                         type = "kallisto",
+                         tx2gene = t2g)
+
+head(gni_kallisto$counts)
+head(gni_kallisto$length)
+
+dir.create("./data/external/DGS_review/DGE")
+saveRDS(gni_kallisto, "./data/external/DGS_review/DGE/gni_kallisto_full.RDS")
+
+```
+
+
+
+
+
+
+
+
