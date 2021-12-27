@@ -263,9 +263,22 @@ done
 ### Download genomes and annotations
 
 * ENSEMBL mouse 96
-* ENSEMBL rat
+* ENSEMBL rat 98
 
 ```{bash}
+## Mouse 
+mkdir -p GENOMEDIR/Mmus
+cd GENOMEDIR/Mmus
+wget http://ftp.ensembl.org/pub/release-96/fasta/mus_musculus/dna/Mus_musculus.GRCm38.dna.toplevel.fa.gz 
+wget http://ftp.ensembl.org/pub/release-96/gtf/mus_musculus/Mus_musculus.GRCm38.96.gtf.gz
+cd .. 
+
+## Rat
+mkdir -p GENOMEDIR/Rnor
+cd GENOMEDIR/Rnor
+wget http://ftp.ensembl.org/pub/release-98/fasta/rattus_norvegicus/dna/Rattus_norvegicus.Rnor_6.0.dna.toplevel.fa.gz
+wget http://ftp.ensembl.org/pub/release-98/gtf/rattus_norvegicus/Rattus_norvegicus.Rnor_6.0.98.gtf.gz
+cd .. 
 
 ```
 
@@ -273,17 +286,32 @@ done
 ### Create kallisto index with introns
 
 ```{bash}
-mkdir -p GENOMEDIR/kallisto/mouse
+## Mouse
+mkdir -p GENOMEDIR/Mmus/kallisto
 
-kb ref -i GENOMEDIR/kallisto/mouse/kallisto_index_dmel_ensembl99_cdna_intron \
--g GENOMEDIR/kallisto/mouse/kb_output_t2g.txt \
--f1 GENOMEDIR/kallisto/mouse/kb_output_cdna.fa \
--f2 GENOMEDIR/kallisto/mouse/kb_output_intron.fa \
--c1 GENOMEDIR/kallisto/mouse/kb_output_cdna_t2c.txt \
--c2 GENOMEDIR/kallisto/mouse/kb_output_intron_t2c.txt \
+kb ref -i GENOMEDIR/Mmus/kallisto/kallisto_index_Mmus_ensembl96_cdna_intron \
+-g GENOMEDIR/Mmus/kallisto/kb_output_t2g.txt \
+-f1 GENOMEDIR/Mmus/kallisto/kb_output_cdna.fa \
+-f2 GENOMEDIR/Mmus/kallisto/kb_output_intron.fa \
+-c1 GENOMEDIR/Mmus/kallisto/kb_output_cdna_t2c.txt \
+-c2 GENOMEDIR/Mmus/kallisto/kb_output_intron_t2c.txt \
 --workflow lamanno \
-GENOMEDIR/Drosophila_melanogaster.BDGP6.28.dna.toplevel.fa.gz \
-GENOMEDIR/Drosophila_melanogaster.BDGP6.28.99.gtf
+GENOMEDIR/Mmus/Mus_musculus.GRCm38.dna.toplevel.fa.gz \
+GENOMEDIR/Mmus/Mus_musculus.GRCm38.96.gtf.gz
+
+## Rat
+mkdir -p GENOMEDIR/Rnor/kallisto
+
+kb ref -i GENOMEDIR/Rnor/kallisto/kallisto_index_Rnor_ensembl98_cdna_intron \
+-g GENOMEDIR/Rnor/kallisto/kb_output_t2g.txt \
+-f1 GENOMEDIR/Rnor/kallisto/kb_output_cdna.fa \
+-f2 GENOMEDIR/Rnor/kallisto/kb_output_intron.fa \
+-c1 GENOMEDIR/Rnor/kallisto/kb_output_cdna_t2c.txt \
+-c2 GENOMEDIR/Rnor/kallisto/kb_output_intron_t2c.txt \
+--workflow lamanno \
+GENOMEDIR/Rnor/Rattus_norvegicus.Rnor_6.0.dna.toplevel.fa.gz \
+GENOMEDIR/Rnor/Rattus_norvegicus.Rnor_6.0.98.gtf.gz
+
 
 ```
 
