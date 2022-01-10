@@ -32,144 +32,203 @@ cd DGS_review/Rawfastq
 ## e.g. Rnor_Oligodendrocytes_soma_txn1_read1.fastq.gz
 
 ### Azevedo 2018 (Rnor) - the only PE sequenced data 
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR628/009/SRR6288019/SRR6288019_1.fastq.gz -o "SRR6288019_GSM2856133_OPC_soma_1_Rattus_norvegicus_RNA-Seq_1.fastq.gz" # change quoted bits to sth like Rnor_Oligodendrocytes_soma_txn1_read1.fastq.gz - without brackets
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR628/009/SRR6288019/SRR6288019_2.fastq.gz -o SRR6288019_GSM2856133_OPC_soma_1_Rattus_norvegicus_RNA-Seq_2.fastq.gz # Rnor_Oligodendrocytes_soma_txn1_read2.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR628/000/SRR6288020/SRR6288020_1.fastq.gz -o SRR6288020_GSM2856134_OPC_soma_2_Rattus_norvegicus_RNA-Seq_1.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR628/000/SRR6288020/SRR6288020_2.fastq.gz -o SRR6288020_GSM2856134_OPC_soma_2_Rattus_norvegicus_RNA-Seq_2.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR628/002/SRR6288022/SRR6288022_1.fastq.gz -o SRR6288022_GSM2856136_OPC_protrusion_2_Rattus_norvegicus_RNA-Seq_1.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR628/002/SRR6288022/SRR6288022_2.fastq.gz -o SRR6288022_GSM2856136_OPC_protrusion_2_Rattus_norvegicus_RNA-Seq_2.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR628/001/SRR6288021/SRR6288021_1.fastq.gz -o SRR6288021_GSM2856135_OPC_protrusion_1_Rattus_norvegicus_RNA-Seq_1.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR628/001/SRR6288021/SRR6288021_2.fastq.gz -o SRR6288021_GSM2856135_OPC_protrusion_1_Rattus_norvegicus_RNA-Seq_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR628/009/SRR6288019/SRR6288019_1.fastq.gz -o Rnor_Oligodendrocytes_soma_txn1_read1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR628/009/SRR6288019/SRR6288019_2.fastq.gz -o  Rnor_Oligodendrocytes_soma_txn1_read2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR628/000/SRR6288020/SRR6288020_1.fastq.gz -o Rnor_Oligodendrocytes_soma_txn2_read1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR628/000/SRR6288020/SRR6288020_2.fastq.gz -o Rnor_Oligodendrocytes_soma_txn2_read2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR628/002/SRR6288022/SRR6288022_1.fastq.gz -o Rnor_Oligodendrocytes_protrusion_txn2_read1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR628/002/SRR6288022/SRR6288022_2.fastq.gz -o Rnor_Oligodendrocytes_protrusion_txn2_read2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR628/001/SRR6288021/SRR6288021_1.fastq.gz -o Rnor_Oligodendrocytes_protrusion_txn1_read1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR628/001/SRR6288021/SRR6288021_2.fastq.gz -o Rnor_Oligodendrocytes_protrusion_txn1_read2.fastq.gz
 
 ### Sakers 2017 (Mmus)
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR286/009/SRR2862549/SRR2862549.fastq.gz -o SRR2862549_GSM1920991_CtxTRAP1_Mus_musculus_RNA-Seq.fastq.gz # Mmus_Astrocytes-A_wholecell_trap1.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR286/006/SRR2862546/SRR2862546.fastq.gz -o SRR2862546_GSM1920988_CtxPre1_Mus_musculus_RNA-Seq.fastq.gz # Mmus_Astrocytes-A_wholecell_txn1.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR286/001/SRR2862551/SRR2862551.fastq.gz -o SRR2862551_GSM1920993_CtxTRAP3_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR286/000/SRR2862550/SRR2862550.fastq.gz -o SRR2862550_GSM1920992_CtxTRAP2_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR286/007/SRR2862547/SRR2862547.fastq.gz -o SRR2862547_GSM1920989_CtxPre2_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR286/008/SRR2862548/SRR2862548.fastq.gz -o SRR2862548_GSM1920990_CtxPre3_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR286/002/SRR2862552/SRR2862552.fastq.gz -o SRR2862552_GSM1920994_PAPpre1_Mus_musculus_RNA-Seq.fastq.gz # Mmus_Astrocytes-A_protrusion_txn1.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR286/003/SRR2862553/SRR2862553.fastq.gz -o SRR2862553_GSM1920995_PAPpre2_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR286/004/SRR2862554/SRR2862554.fastq.gz -o SRR2862554_GSM1920996_PAPpre3_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR286/005/SRR2862555/SRR2862555.fastq.gz -o SRR2862555_GSM1920997_PAPTRAP1_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR286/006/SRR2862556/SRR2862556.fastq.gz -o SRR2862556_GSM1920998_PAPTRAP2_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR286/007/SRR2862557/SRR2862557.fastq.gz -o SRR2862557_GSM1920999_PAPTRAP3_Mus_musculus_RNA-Seq.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR286/009/SRR2862549/SRR2862549.fastq.gz -o Mmus_Astrocytes-A_wholecell_trap1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR286/006/SRR2862546/SRR2862546.fastq.gz -o  Mmus_Astrocytes-A_wholecell_txn1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR286/001/SRR2862551/SRR2862551.fastq.gz -o 
+Mmus_Astrocytes-A_wholecell_trap3.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR286/000/SRR2862550/SRR2862550.fastq.gz -o Mmus_Astrocytes-A_wholecell_trap2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR286/007/SRR2862547/SRR2862547.fastq.gz -o 
+Mmus_Astrocytes-A_wholecell_txn2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR286/008/SRR2862548/SRR2862548.fastq.gz -o Mmus_Astrocytes-A_wholecell_txn3.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR286/002/SRR2862552/SRR2862552.fastq.gz -o Mmus_Astrocytes-A_protrusion_txn1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR286/003/SRR2862553/SRR2862553.fastq.gz -o Mmus_Astrocytes-A_protrusion_txn2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR286/004/SRR2862554/SRR2862554.fastq.gz -o Mmus_Astrocytes-A_protrusion_txn3.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR286/005/SRR2862555/SRR2862555.fastq.gz -o Mmus_Astrocytes-A_protrusion_trap1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR286/006/SRR2862556/SRR2862556.fastq.gz -o Mmus_Astrocytes-A_protrusion_trap2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR286/007/SRR2862557/SRR2862557.fastq.gz -o Mmus_Astrocytes-A_protrusion_trap3.fastq.gz
 
 ### Boulay 2017 (Mmus)
 
 #### Translatome 
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR235/009/SRR2352159/SRR2352159.fastq.gz -o SRR2352159_GSM1874998_Perivascular_endfeet_translatome_Endfeet2_Mus_musculus_RNA-Seq.fastq.gz 
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR235/006/SRR2352156/SRR2352156.fastq.gz -o SRR2352156_GSM1874995_Whole_astrocyte_translatome_Astrocyte2_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR235/007/SRR2352157/SRR2352157.fastq.gz -o SRR2352157_GSM1874996_Whole_astrocyte_translatome_Astrocyte3_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR235/005/SRR2352155/SRR2352155.fastq.gz -o SRR2352155_GSM1874994_Whole_astrocyte_translatome_Astrocyte1_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR235/008/SRR2352158/SRR2352158.fastq.gz -o SRR2352158_GSM1874997_Perivascular_endfeet_translatome_Endfeet1_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR235/000/SRR2352160/SRR2352160.fastq.gz -o SRR2352160_GSM1874999_Perivascular_endfeet_translatome_Endfeet3_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR235/002/SRR2352162/SRR2352162.fastq.gz -o SRR2352162_GSM1875001_Perivascular_endfeet_translatome_Endfeet5_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR235/001/SRR2352161/SRR2352161.fastq.gz -o SRR2352161_GSM1875000_Perivascular_endfeet_translatome_Endfeet4_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR235/003/SRR2352163/SRR2352163.fastq.gz -o SRR2352163_GSM1875002_Perivascular_endfeet_translatome_Endfeet6_Mus_musculus_RNA-Seq.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR235/009/SRR2352159/SRR2352159.fastq.gz -o 
+Mmus_Astrocytes-B_translatome_Endfeet2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR235/006/SRR2352156/SRR2352156.fastq.gz -o 
+Mmus_Astrocytes-B_translatome_wholecell2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR235/007/SRR2352157/SRR2352157.fastq.gz -o 
+Mmus_Astrocytes-B_translatome_wholecell3.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR235/005/SRR2352155/SRR2352155.fastq.gz -o 
+Mmus_Astrocytes-B_translatome_wholecell1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR235/008/SRR2352158/SRR2352158.fastq.gz -o 
+Mmus_Astrocytes-B_translatome_Endfeet1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR235/000/SRR2352160/SRR2352160.fastq.gz -o 
+Mmus_Astrocytes-B_translatome_Endfeet3.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR235/002/SRR2352162/SRR2352162.fastq.gz -o 
+Mmus_Astrocytes-B_translatome_Endfeet5.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR235/001/SRR2352161/SRR2352161.fastq.gz -o 
+Mmus_Astrocytes-B_translatome_Endfeet4.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR235/003/SRR2352163/SRR2352163.fastq.gz -o 
+Mmus_Astrocytes-B_translatome_Endfeet6.fastq.gz
 
 
 ### Castro 2020 (Mmus)
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/024/SRR12045624/SRR12045624.fastq.gz -o SRR12045624_GSM4626085_NG2DsRed_5_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/020/SRR12045620/SRR12045620.fastq.gz -o SRR12045620_GSM4626081_S100GFP_1_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/023/SRR12045623/SRR12045623.fastq.gz -o SRR12045623_GSM4626084_NG2DsRed_S100GFP_4_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/021/SRR12045621/SRR12045621.fastq.gz -o SRR12045621_GSM4626082_NG2DsRed_2_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/025/SRR12045625/SRR12045625.fastq.gz -o SRR12045625_GSM4626086_NG2DsRed_S100GFP_6_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/022/SRR12045622/SRR12045622.fastq.gz -o SRR12045622_GSM4626083_S100GFP_3_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/030/SRR12045630/SRR12045630.fastq.gz -o SRR12045630_GSM4626091_S100GFP_11_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/026/SRR12045626/SRR12045626.fastq.gz -o SRR12045626_GSM4626087_NG2DsRed_7_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/028/SRR12045628/SRR12045628.fastq.gz -o SRR12045628_GSM4626089_NG2DsRed_9_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/027/SRR12045627/SRR12045627.fastq.gz -o SRR12045627_GSM4626088_NG2DsRed_S100GFP_8_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/029/SRR12045629/SRR12045629.fastq.gz -o SRR12045629_GSM4626090_S100GFP_10_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/031/SRR12045631/SRR12045631.fastq.gz -o SRR12045631_GSM4626092_NG2DsRed_S100GFP_12_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/032/SRR12045632/SRR12045632.fastq.gz -o SRR12045632_GSM4626093_NG2DsRed_13_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/034/SRR12045634/SRR12045634.fastq.gz -o SRR12045634_GSM4626095_NG2DsRed_15_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/033/SRR12045633/SRR12045633.fastq.gz -o SRR12045633_GSM4626094_S100GFP_14_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/036/SRR12045636/SRR12045636.fastq.gz -o SRR12045636_GSM4626097_S100GFP_17_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/035/SRR12045635/SRR12045635.fastq.gz -o SRR12045635_GSM4626096_NG2DsRed_S100GFP_16_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/037/SRR12045637/SRR12045637.fastq.gz -o SRR12045637_GSM4626098_NG2DsRed_S100GFP_18_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/038/SRR12045638/SRR12045638.fastq.gz -o SRR12045638_GSM4626099_S100GFP_19_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/042/SRR12045642/SRR12045642.fastq.gz -o SRR12045642_GSM4626103_NG2DsRed_S100GFP_23_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/040/SRR12045640/SRR12045640.fastq.gz -o SRR12045640_GSM4626101_NG2DsRed_21_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/039/SRR12045639/SRR12045639.fastq.gz -o SRR12045639_GSM4626100_NG2DsRed_S100GFP_20_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/041/SRR12045641/SRR12045641.fastq.gz -o SRR12045641_GSM4626102_S100GFP_22_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/043/SRR12045643/SRR12045643.fastq.gz -o SRR12045643_GSM4626104_NG2DsRed_24_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/045/SRR12045645/SRR12045645.fastq.gz -o SRR12045645_GSM4626106_NG2DsRed_26_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/046/SRR12045646/SRR12045646.fastq.gz -o SRR12045646_GSM4626107_S100GFP_27_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/048/SRR12045648/SRR12045648.fastq.gz -o SRR12045648_GSM4626109_NG2DsRed_S100GFP_29_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/049/SRR12045649/SRR12045649.fastq.gz -o SRR12045649_GSM4626110_NG2DsRed_30_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/044/SRR12045644/SRR12045644.fastq.gz -o SRR12045644_GSM4626105_S100GFP_25_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/047/SRR12045647/SRR12045647.fastq.gz -o SRR12045647_GSM4626108_NG2DsRed_28_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/050/SRR12045650/SRR12045650.fastq.gz -o SRR12045650_GSM4626111_NG2DsRed_S100GFP_31_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/051/SRR12045651/SRR12045651.fastq.gz -o SRR12045651_GSM4626112_S100GFP_32_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/055/SRR12045655/SRR12045655.fastq.gz -o SRR12045655_GSM4626116_NG2DsRed_S100GFP_36_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/054/SRR12045654/SRR12045654.fastq.gz -o SRR12045654_GSM4626115_NG2DsRed_35_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/052/SRR12045652/SRR12045652.fastq.gz -o SRR12045652_GSM4626113_S100GFP_33_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/053/SRR12045653/SRR12045653.fastq.gz -o SRR12045653_GSM4626114_NG2DsRed_S100GFP_34_Mus_musculus_RNA-Seq.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/024/SRR12045624/SRR12045624.fastq.gz -o 
+Mmus_PCSc_NG2DsRed_5.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/020/SRR12045620/SRR12045620.fastq.gz -o 
+Mmus_PCSc_S100GFP_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/023/SRR12045623/SRR12045623.fastq.gz -o 
+Mmus_PCSc_NG2DsRed_S100GFP_4.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/021/SRR12045621/SRR12045621.fastq.gz -o 
+Mmus_PCSc_NG2DsRed_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/025/SRR12045625/SRR12045625.fastq.gz -o 
+Mmus_PCSc_NG2DsRed_S100GFP_6.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/022/SRR12045622/SRR12045622.fastq.gz -o 
+Mmus_PCSc_S100GFP_3.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/030/SRR12045630/SRR12045630.fastq.gz -o 
+Mmus_PCSc_S100GFP_11.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/026/SRR12045626/SRR12045626.fastq.gz -o 
+Mmus_PCSc_NG2DsRed_7.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/028/SRR12045628/SRR12045628.fastq.gz -o 
+Mmus_PCSc_NG2DsRed_9.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/027/SRR12045627/SRR12045627.fastq.gz -o 
+Mmus_PCSc_NG2DsRed_S100GFP_8.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/029/SRR12045629/SRR12045629.fastq.gz -o 
+Mmus_PCSc_S100GFP_10.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/031/SRR12045631/SRR12045631.fastq.gz -o 
+Mmus_PCSc_NG2DsRed_S100GFP_12.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/032/SRR12045632/SRR12045632.fastq.gz -o 
+Mmus_PCSc_NG2DsRed_13.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/034/SRR12045634/SRR12045634.fastq.gz -o 
+Mmus_PCSc_NG2DsRed_15.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/033/SRR12045633/SRR12045633.fastq.gz -o 
+Mmus_PCSc_S100GFP_14.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/036/SRR12045636/SRR12045636.fastq.gz -o 
+Mmus_PCSc_S100GFP_17.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/035/SRR12045635/SRR12045635.fastq.gz -o 
+Mmus_PCSc_NG2DsRed_S100GFP_16.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/037/SRR12045637/SRR12045637.fastq.gz -o 
+Mmus_PCSc_NG2DsRed_S100GFP_18.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/038/SRR12045638/SRR12045638.fastq.gz -o 
+Mmus_PCSc_S100GFP_19.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/042/SRR12045642/SRR12045642.fastq.gz -o 
+Mmus_PCSc_NG2DsRed_S100GFP_23.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/040/SRR12045640/SRR12045640.fastq.gz -o 
+Mmus_PCSc_NG2DsRed_21.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/039/SRR12045639/SRR12045639.fastq.gz -o 
+Mmus_PCSc_NG2DsRed_S100GFP_20.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/041/SRR12045641/SRR12045641.fastq.gz -o 
+Mmus_PCSc_S100GFP_22.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/043/SRR12045643/SRR12045643.fastq.gz -o 
+Mmus_PCSc_NG2DsRed_24.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/045/SRR12045645/SRR12045645.fastq.gz -o 
+Mmus_PCSc_NG2DsRed_26.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/046/SRR12045646/SRR12045646.fastq.gz -o 
+Mmus_PCSc_S100GFP_27.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/048/SRR12045648/SRR12045648.fastq.gz -o 
+Mmus_PCSc_NG2DsRed_S100GFP_29.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/049/SRR12045649/SRR12045649.fastq.gz -o 
+Mmus_PCSc_NG2DsRed_30.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/044/SRR12045644/SRR12045644.fastq.gz -o 
+Mmus_PCSc_S100GFP_25.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/047/SRR12045647/SRR12045647.fastq.gz -o 
+Mmus_PCSc_NG2DsRed_28.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/050/SRR12045650/SRR12045650.fastq.gz -o 
+Mmus_PCSc_NG2DsRed_S100GFP_31.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/051/SRR12045651/SRR12045651.fastq.gz -o 
+Mmus_PCSc_S100GFP_32.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/055/SRR12045655/SRR12045655.fastq.gz -o 
+Mmus_PCSc_NG2DsRed_S100GFP_36.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/054/SRR12045654/SRR12045654.fastq.gz -o 
+Mmus_PCSc_NG2DsRed_35.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/052/SRR12045652/SRR12045652.fastq.gz -o 
+Mmus_PCSc_S100GFP_33.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/053/SRR12045653/SRR12045653.fastq.gz -o 
+Mmus_PCSc_NG2DsRed_S100GFP_34.fastq.gz
 
 ### Mazare 2020 (Mmus)
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/094/SRR10877094/SRR10877094.fastq.gz -o SRR10877094_GSM4261480_2017_545f_C1-Astro-GFP_technical_replicate_6_Mus_musculus_RNA-Seq.fastq.gz # Mmus_Astrocytes-D_wholecell_trap1_tech6.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/090/SRR10877090/SRR10877090.fastq.gz -o SRR10877090_GSM4261476_2017_545b_C1-Astro-GFP_technical_replicate_2_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/089/SRR10877089/SRR10877089.fastq.gz -o SRR10877089_GSM4261475_2017_545a_C1-Astro-GFP_technical_replicate_1_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/091/SRR10877091/SRR10877091.fastq.gz -o SRR10877091_GSM4261477_2017_545c_C1-Astro-GFP_technical_replicate_3_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/092/SRR10877092/SRR10877092.fastq.gz -o SRR10877092_GSM4261478_2017_545d_C1-Astro-GFP_technical_replicate_4_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/093/SRR10877093/SRR10877093.fastq.gz -o SRR10877093_GSM4261479_2017_545e_C1-Astro-GFP_technical_replicate_5_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/095/SRR10877095/SRR10877095.fastq.gz -o SRR10877095_GSM4261481_2017_545g_C1-Astro-GFP_technical_replicate_7_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/097/SRR10877097/SRR10877097.fastq.gz -o SRR10877097_GSM4261483_2017_547a_C1-PAP-GFP_technical_replicate_1_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/096/SRR10877096/SRR10877096.fastq.gz -o SRR10877096_GSM4261482_2017_545h_C1-Astro-GFP_technical_replicate_8_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/098/SRR10877098/SRR10877098.fastq.gz -o SRR10877098_GSM4261484_2017_547b_C1-PAP-GFP_technical_replicate_2_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/099/SRR10877099/SRR10877099.fastq.gz -o SRR10877099_GSM4261485_2017_547c_C1-PAP-GFP_technical_replicate_3_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/000/SRR10877100/SRR10877100.fastq.gz -o SRR10877100_GSM4261486_2017_547d_C1-PAP-GFP_technical_replicate_4_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/004/SRR10877104/SRR10877104.fastq.gz -o SRR10877104_GSM4261490_2017_547h_C1-PAP-GFP_technical_replicate_8_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/002/SRR10877102/SRR10877102.fastq.gz -o SRR10877102_GSM4261488_2017_547f_C1-PAP-GFP_technical_replicate_6_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/003/SRR10877103/SRR10877103.fastq.gz -o SRR10877103_GSM4261489_2017_547g_C1-PAP-GFP_technical_replicate_7_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/001/SRR10877101/SRR10877101.fastq.gz -o SRR10877101_GSM4261487_2017_547e_C1-PAP-GFP_technical_replicate_5_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/005/SRR10877105/SRR10877105.fastq.gz -o SRR10877105_GSM4261491_2017_553a_C2-Astro-GFP_technical_replicate_1_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/006/SRR10877106/SRR10877106.fastq.gz -o SRR10877106_GSM4261492_2017_553b_C2-Astro-GFP_technical_replicate_2_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/011/SRR10877111/SRR10877111.fastq.gz -o SRR10877111_GSM4261497_2017_553g_C2-Astro-GFP_technical_replicate_7_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/010/SRR10877110/SRR10877110.fastq.gz -o SRR10877110_GSM4261496_2017_553f_C2-Astro-GFP_technical_replicate_6_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/007/SRR10877107/SRR10877107.fastq.gz -o SRR10877107_GSM4261493_2017_553c_C2-Astro-GFP_technical_replicate_3_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/008/SRR10877108/SRR10877108.fastq.gz -o SRR10877108_GSM4261494_2017_553d_C2-Astro-GFP_technical_replicate_4_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/009/SRR10877109/SRR10877109.fastq.gz -o SRR10877109_GSM4261495_2017_553e_C2-Astro-GFP_technical_replicate_5_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/012/SRR10877112/SRR10877112.fastq.gz -o SRR10877112_GSM4261498_2017_553h_C2-Astro-GFP_technical_replicate_8_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/015/SRR10877115/SRR10877115.fastq.gz -o SRR10877115_GSM4261501_2017_555c_C2-PAP-GFP_technical_replicate_3_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/014/SRR10877114/SRR10877114.fastq.gz -o SRR10877114_GSM4261500_2017_555b_C2-PAP-GFP_technical_replicate_2_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/013/SRR10877113/SRR10877113.fastq.gz -o SRR10877113_GSM4261499_2017_555a_C2-PAP-GFP_technical_replicate_1_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/016/SRR10877116/SRR10877116.fastq.gz -o SRR10877116_GSM4261502_2017_555d_C2-PAP-GFP_technical_replicate_4_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/017/SRR10877117/SRR10877117.fastq.gz -o SRR10877117_GSM4261503_2017_555e_C2-PAP-GFP_technical_replicate_5_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/018/SRR10877118/SRR10877118.fastq.gz -o SRR10877118_GSM4261504_2017_555f_C2-PAP-GFP_technical_replicate_6_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/019/SRR10877119/SRR10877119.fastq.gz -o SRR10877119_GSM4261505_2017_555g_C2-PAP-GFP_technical_replicate_7_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/021/SRR10877121/SRR10877121.fastq.gz -o SRR10877121_GSM4261507_2017_561a_C3-Astro-GFP_technical_replicate_1_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/022/SRR10877122/SRR10877122.fastq.gz -o SRR10877122_GSM4261508_2017_561b_C3-Astro-GFP_technical_replicate_2_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/020/SRR10877120/SRR10877120.fastq.gz -o SRR10877120_GSM4261506_2017_555h_C2-PAP-GFP_technical_replicate_8_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/023/SRR10877123/SRR10877123.fastq.gz -o SRR10877123_GSM4261509_2017_561c_C3-Astro-GFP_technical_replicate_3_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/024/SRR10877124/SRR10877124.fastq.gz -o SRR10877124_GSM4261510_2017_561d_C3-Astro-GFP_technical_replicate_4_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/026/SRR10877126/SRR10877126.fastq.gz -o SRR10877126_GSM4261512_2017_561f_C3-Astro-GFP_technical_replicate_6_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/025/SRR10877125/SRR10877125.fastq.gz -o SRR10877125_GSM4261511_2017_561e_C3-Astro-GFP_technical_replicate_5_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/027/SRR10877127/SRR10877127.fastq.gz -o SRR10877127_GSM4261513_2017_561g_C3-Astro-GFP_technical_replicate_7_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/029/SRR10877129/SRR10877129.fastq.gz -o SRR10877129_GSM4261515_2017_563a_C3-PAP-GFP_technical_replicate_1_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/028/SRR10877128/SRR10877128.fastq.gz -o SRR10877128_GSM4261514_2017_561h_C3-Astro-GFP_technical_replicate_8_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/030/SRR10877130/SRR10877130.fastq.gz -o SRR10877130_GSM4261516_2017_563b_C3-PAP-GFP_technical_replicate_2_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/032/SRR10877132/SRR10877132.fastq.gz -o SRR10877132_GSM4261518_2017_563d_C3-PAP-GFP_technical_replicate_4_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/034/SRR10877134/SRR10877134.fastq.gz -o SRR10877134_GSM4261520_2017_563f_C3-PAP-GFP_technical_replicate_6_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/031/SRR10877131/SRR10877131.fastq.gz -o SRR10877131_GSM4261517_2017_563c_C3-PAP-GFP_technical_replicate_3_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/036/SRR10877136/SRR10877136.fastq.gz -o SRR10877136_GSM4261522_2017_563h_C3-PAP-GFP_technical_replicate_8_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/033/SRR10877133/SRR10877133.fastq.gz -o SRR10877133_GSM4261519_2017_563e_C3-PAP-GFP_technical_replicate_5_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/035/SRR10877135/SRR10877135.fastq.gz -o SRR10877135_GSM4261521_2017_563g_C3-PAP-GFP_technical_replicate_7_Mus_musculus_RNA-Seq.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/094/SRR10877094/SRR10877094.fastq.gz -o Mmus_Astrocytes-C_wholecell_trap1_tech6.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/090/SRR10877090/SRR10877090.fastq.gz -o Mmus_Astrocytes-C_wholecell_trap1_tech2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/089/SRR10877089/SRR10877089.fastq.gz -o Mmus_Astrocytes-C_wholecell_trap1_tech1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/091/SRR10877091/SRR10877091.fastq.gz -o Mmus_Astrocytes-C_wholecell_trap1_tech3.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/092/SRR10877092/SRR10877092.fastq.gz -o Mmus_Astrocytes-C_wholecell_trap1_tech4.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/093/SRR10877093/SRR10877093.fastq.gz -o Mmus_Astrocytes-C_wholecell_trap1_tech5.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/095/SRR10877095/SRR10877095.fastq.gz -o Mmus_Astrocytes-C_wholecell_trap1_tech7.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/097/SRR10877097/SRR10877097.fastq.gz -o Mmus_Astrocytes-C_PAP_trap1_tech1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/096/SRR10877096/SRR10877096.fastq.gz -o Mmus_Astrocytes-C_wholecell_trap1_tech8.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/098/SRR10877098/SRR10877098.fastq.gz -o Mmus_Astrocytes-C_PAP_trap1_tech2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/099/SRR10877099/SRR10877099.fastq.gz -o Mmus_Astrocytes-C_PAP_trap1_tech3.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/000/SRR10877100/SRR10877100.fastq.gz -o Mmus_Astrocytes-C_PAP_trap1_tech4.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/004/SRR10877104/SRR10877104.fastq.gz -o Mmus_Astrocytes-C_PAP_trap1_tech8.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/002/SRR10877102/SRR10877102.fastq.gz -o Mmus_Astrocytes-C_PAP_trap1_tech6.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/003/SRR10877103/SRR10877103.fastq.gz -o Mmus_Astrocytes-C_PAP_trap1_tech7.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/001/SRR10877101/SRR10877101.fastq.gz -o Mmus_Astrocytes-C_PAP_trap1_tech5.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/005/SRR10877105/SRR10877105.fastq.gz -o Mmus_Astrocytes-C_wholecell_trap2_tech1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/006/SRR10877106/SRR10877106.fastq.gz -o Mmus_Astrocytes-C_wholecell_trap2_tech2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/011/SRR10877111/SRR10877111.fastq.gz -o Mmus_Astrocytes-C_wholecell_trap2_tech7.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/010/SRR10877110/SRR10877110.fastq.gz -o Mmus_Astrocytes-C_wholecell_trap2_tech6.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/007/SRR10877107/SRR10877107.fastq.gz -o Mmus_Astrocytes-C_wholecell_trap2_tech3.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/008/SRR10877108/SRR10877108.fastq.gz -o Mmus_Astrocytes-C_wholecell_trap2_tech4.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/009/SRR10877109/SRR10877109.fastq.gz -o Mmus_Astrocytes-C_wholecell_trap2_tech5.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/012/SRR10877112/SRR10877112.fastq.gz -o Mmus_Astrocytes-C_wholecell_trap2_tech8.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/015/SRR10877115/SRR10877115.fastq.gz -o Mmus_Astrocytes-C_PAP_trap2_tech3.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/014/SRR10877114/SRR10877114.fastq.gz -o Mmus_Astrocytes-C_PAP_trap2_tech2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/013/SRR10877113/SRR10877113.fastq.gz -o Mmus_Astrocytes-C_PAP_trap2_tech1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/016/SRR10877116/SRR10877116.fastq.gz -o Mmus_Astrocytes-C_PAP_trap2_tech4.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/017/SRR10877117/SRR10877117.fastq.gz -o Mmus_Astrocytes-C_PAP_trap2_tech5.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/018/SRR10877118/SRR10877118.fastq.gz -o Mmus_Astrocytes-C_PAP_trap2_tech6.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/019/SRR10877119/SRR10877119.fastq.gz -o Mmus_Astrocytes-C_PAP_trap2_tech7.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/021/SRR10877121/SRR10877121.fastq.gz -o Mmus_Astrocytes-C_wholecell_trap3_tech1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/022/SRR10877122/SRR10877122.fastq.gz -o Mmus_Astrocytes-C_wholecell_trap3_tech2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/020/SRR10877120/SRR10877120.fastq.gz -o Mmus_Astrocytes-C_PAP_trap2_tech8.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/023/SRR10877123/SRR10877123.fastq.gz -o Mmus_Astrocytes-C_wholecell_trap3_tech3.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/024/SRR10877124/SRR10877124.fastq.gz -o Mmus_Astrocytes-C_wholecell_trap3_tech4.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/026/SRR10877126/SRR10877126.fastq.gz -o Mmus_Astrocytes-C_wholecell_trap3_tech6.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/025/SRR10877125/SRR10877125.fastq.gz -o Mmus_Astrocytes-C_wholecell_trap3_tech5.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/027/SRR10877127/SRR10877127.fastq.gz -o Mmus_Astrocytes-C_wholecell_trap3_tech7.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/029/SRR10877129/SRR10877129.fastq.gz -o Mmus_Astrocytes-C_PAP_trap3_tech1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/028/SRR10877128/SRR10877128.fastq.gz -o Mmus_Astrocytes-C_wholecell_trap3_tech8.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/030/SRR10877130/SRR10877130.fastq.gz -o Mmus_Astrocytes-C_PAP_trap3_tech2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/032/SRR10877132/SRR10877132.fastq.gz -o Mmus_Astrocytes-C_PAP_trap3_tech4.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/034/SRR10877134/SRR10877134.fastq.gz -o Mmus_Astrocytes-C_PAP_trap3_tech6.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/031/SRR10877131/SRR10877131.fastq.gz -o Mmus_Astrocytes-C_PAP_trap3_tech3.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/036/SRR10877136/SRR10877136.fastq.gz -o Mmus_Astrocytes-C_PAP_trap3_tech8.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/033/SRR10877133/SRR10877133.fastq.gz -o Mmus_Astrocytes-C_PAP_trap3_tech5.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/035/SRR10877135/SRR10877135.fastq.gz -o Mmus_Astrocytes-C_PAP_trap3_tech7.fastq.gz
 
 ### Thakurela 2016 (Mmus)
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR318/006/SRR3181086/SRR3181086.fastq.gz -o SRR3181086_GSM2068247_Myelin_P75_R2_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR318/003/SRR3181083/SRR3181083.fastq.gz -o SRR3181083_GSM2068244_Myelin_P18_R2_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR318/007/SRR3181087/SRR3181087.fastq.gz -o SRR3181087_GSM2068248_Myelin_P75_R3_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR318/002/SRR3181082/SRR3181082.fastq.gz -o SRR3181082_GSM2068243_Myelin_P18_R1_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR318/005/SRR3181085/SRR3181085.fastq.gz -o SRR3181085_GSM2068246_Myelin_P75_R1_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR318/004/SRR3181084/SRR3181084.fastq.gz -o SRR3181084_GSM2068245_Myelin_P18_R3_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR318/008/SRR3181088/SRR3181088.fastq.gz -o SRR3181088_GSM2068249_Myelin_6mo_R1_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR318/000/SRR3181090/SRR3181090.fastq.gz -o SRR3181090_GSM2068251_Myelin_6mo_R3_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR318/009/SRR3181089/SRR3181089.fastq.gz -o SRR3181089_GSM2068250_Myelin_6mo_R2_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR318/003/SRR3181093/SRR3181093.fastq.gz -o SRR3181093_GSM2068254_Myelin_24m_R3_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR318/002/SRR3181092/SRR3181092.fastq.gz -o SRR3181092_GSM2068253_Myelin_24m_R2_Mus_musculus_RNA-Seq.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR318/001/SRR3181091/SRR3181091.fastq.gz -o SRR3181091_GSM2068252_Myelin_24m_R1_Mus_musculus_RNA-Seq.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR318/006/SRR3181086/SRR3181086.fastq.gz -o 
+Mmus_Myelin_P75_R2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR318/003/SRR3181083/SRR3181083.fastq.gz -o 
+Mmus_Myelin_P18_R2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR318/007/SRR3181087/SRR3181087.fastq.gz -o 
+Mmus_Myelin_P75_R3.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR318/002/SRR3181082/SRR3181082.fastq.gz -o 
+Mmus_Myelin_P18_R1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR318/005/SRR3181085/SRR3181085.fastq.gz -o 
+Mmus_Myelin_P75_R1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR318/004/SRR3181084/SRR3181084.fastq.gz -o 
+Mmus_Myelin_P18_R3.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR318/008/SRR3181088/SRR3181088.fastq.gz -o 
+Mmus_Myelin_6mo_R1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR318/000/SRR3181090/SRR3181090.fastq.gz -o 
+Mmus_Myelin_6mo_R3.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR318/009/SRR3181089/SRR3181089.fastq.gz -o 
+Mmus_Myelin_6mo_R2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR318/003/SRR3181093/SRR3181093.fastq.gz -o 
+Mmus_Myelin_24mo_R3.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR318/002/SRR3181092/SRR3181092.fastq.gz -o 
+Mmus_Myelin_24mo_R2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR318/001/SRR3181091/SRR3181091.fastq.gz -o 
+Mmus_Myelin_24mo_R1.fastq.gz
 
 ### Vasek 2021 (Mmus)
 
