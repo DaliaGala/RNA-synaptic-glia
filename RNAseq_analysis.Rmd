@@ -33,7 +33,7 @@ cd DGS_review/Rawfastq
 
 ### Azevedo 2018 (Rnor) - the only PE sequenced data 
 curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR628/009/SRR6288019/SRR6288019_1.fastq.gz -o Rnor_Oligodendrocytes_soma_txn1_read1.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR628/009/SRR6288019/SRR6288019_2.fastq.gz -o  Rnor_Oligodendrocytes_soma_txn1_read2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR628/009/SRR6288019/SRR6288019_2.fastq.gz -o Rnor_Oligodendrocytes_soma_txn1_read2.fastq.gz
 curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR628/000/SRR6288020/SRR6288020_1.fastq.gz -o Rnor_Oligodendrocytes_soma_txn2_read1.fastq.gz
 curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR628/000/SRR6288020/SRR6288020_2.fastq.gz -o Rnor_Oligodendrocytes_soma_txn2_read2.fastq.gz
 curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR628/002/SRR6288022/SRR6288022_1.fastq.gz -o Rnor_Oligodendrocytes_protrusion_txn2_read1.fastq.gz
@@ -43,7 +43,7 @@ curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR628/001/SRR6288021/SRR6288021_2.fa
 
 ### Sakers 2017 (Mmus)
 curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR286/009/SRR2862549/SRR2862549.fastq.gz -o Mmus_Astrocytes-A_wholecell_trap1.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR286/006/SRR2862546/SRR2862546.fastq.gz -o  Mmus_Astrocytes-A_wholecell_txn1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR286/006/SRR2862546/SRR2862546.fastq.gz -o Mmus_Astrocytes-A_wholecell_txn1.fastq.gz
 curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR286/001/SRR2862551/SRR2862551.fastq.gz -o 
 Mmus_Astrocytes-A_wholecell_trap3.fastq.gz
 curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR286/000/SRR2862550/SRR2862550.fastq.gz -o Mmus_Astrocytes-A_wholecell_trap2.fastq.gz
