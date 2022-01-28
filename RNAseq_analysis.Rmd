@@ -3,6 +3,8 @@ title: "RNAseq_analysis"
 author: "Jeff Lee"
 date: "16/12/2021"
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 # INTRODUCTION 
@@ -10,7 +12,7 @@ output: html_document
 R Markdown document to re-analyse RNA-seq from glial end-processes. 
 Raw data handling and kallisto mappings are performed in @mprocessor1 while DESeq2 is run locally. 
 
-# RNA SEQUENCING ANALYSIS
+# RNA SEQUENCING PROCESSING
 
 ## Raw Data Handling
 
@@ -22,10 +24,10 @@ Fastq curl links are obtained from https://sra-explorer.info
 ## @mprocessor1
 ## project dir = /usr/people/sjoh4548/Data/Sequencing
 
-mkdir -p DGS_review/Rawfastq
+mkdir -p DSG_review/Rawfastq
 
 ## Get curl links
-cd DGS_review/Rawfastq
+cd DSG_review/Rawfastq
 
 ## * * * * * Naming convention
 ## species_celltype_compartment_txn/trap + repeat number_(read number if PE).fastq.gz
@@ -46,11 +48,9 @@ curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR628/001/SRR6288021/SRR6288021_2.fa
 # Cortex transcript, cortex trap, SN transcript, SN trap
 curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR286/009/SRR2862549/SRR2862549.fastq.gz -o Mmus_Astrocytes-A_wholecell_trap1.fastq.gz
 curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR286/006/SRR2862546/SRR2862546.fastq.gz -o Mmus_Astrocytes-A_wholecell_txn1.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR286/001/SRR2862551/SRR2862551.fastq.gz -o 
-Mmus_Astrocytes-A_wholecell_trap3.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR286/001/SRR2862551/SRR2862551.fastq.gz -o Mmus_Astrocytes-A_wholecell_trap3.fastq.gz
 curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR286/000/SRR2862550/SRR2862550.fastq.gz -o Mmus_Astrocytes-A_wholecell_trap2.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR286/007/SRR2862547/SRR2862547.fastq.gz -o 
-Mmus_Astrocytes-A_wholecell_txn2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR286/007/SRR2862547/SRR2862547.fastq.gz -o Mmus_Astrocytes-A_wholecell_txn2.fastq.gz
 curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR286/008/SRR2862548/SRR2862548.fastq.gz -o Mmus_Astrocytes-A_wholecell_txn3.fastq.gz
 curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR286/002/SRR2862552/SRR2862552.fastq.gz -o Mmus_Astrocytes-A_protrusion_txn1.fastq.gz
 curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR286/003/SRR2862553/SRR2862553.fastq.gz -o Mmus_Astrocytes-A_protrusion_txn2.fastq.gz
@@ -63,52 +63,31 @@ curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR286/007/SRR2862557/SRR2862557.fast
 
 #### Translatome
 # translatome of whole astrocytes extracted following the bacTRAP protocol was compared to a translatome of astrocyte perivascular endfeet
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR235/009/SRR2352159/SRR2352159.fastq.gz -o 
-Mmus_Astrocytes-B_translatome_Endfeet2.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR235/006/SRR2352156/SRR2352156.fastq.gz -o 
-Mmus_Astrocytes-B_translatome_wholecell2.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR235/007/SRR2352157/SRR2352157.fastq.gz -o 
-Mmus_Astrocytes-B_translatome_wholecell3.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR235/005/SRR2352155/SRR2352155.fastq.gz -o 
-Mmus_Astrocytes-B_translatome_wholecell1.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR235/008/SRR2352158/SRR2352158.fastq.gz -o 
-Mmus_Astrocytes-B_translatome_Endfeet1.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR235/000/SRR2352160/SRR2352160.fastq.gz -o 
-Mmus_Astrocytes-B_translatome_Endfeet3.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR235/002/SRR2352162/SRR2352162.fastq.gz -o 
-Mmus_Astrocytes-B_translatome_Endfeet5.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR235/001/SRR2352161/SRR2352161.fastq.gz -o 
-Mmus_Astrocytes-B_translatome_Endfeet4.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR235/003/SRR2352163/SRR2352163.fastq.gz -o 
-Mmus_Astrocytes-B_translatome_Endfeet6.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR235/009/SRR2352159/SRR2352159.fastq.gz -o Mmus_Astrocytes-B_translatome_Endfeet2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR235/006/SRR2352156/SRR2352156.fastq.gz -o Mmus_Astrocytes-B_translatome_wholecell2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR235/007/SRR2352157/SRR2352157.fastq.gz -o Mmus_Astrocytes-B_translatome_wholecell3.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR235/005/SRR2352155/SRR2352155.fastq.gz -o Mmus_Astrocytes-B_translatome_wholecell1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR235/008/SRR2352158/SRR2352158.fastq.gz -o Mmus_Astrocytes-B_translatome_Endfeet1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR235/000/SRR2352160/SRR2352160.fastq.gz -o Mmus_Astrocytes-B_translatome_Endfeet3.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR235/002/SRR2352162/SRR2352162.fastq.gz -o Mmus_Astrocytes-B_translatome_Endfeet5.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR235/001/SRR2352161/SRR2352161.fastq.gz -o Mmus_Astrocytes-B_translatome_Endfeet4.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR235/003/SRR2352163/SRR2352163.fastq.gz -o Mmus_Astrocytes-B_translatome_Endfeet6.fastq.gz
 
 
 ### Castro 2020 (Mmus)
 # They analyse FACS sortes transcriptomes of 3 cell types, and Perisynaptic Schwann Cells are double labelled with S100β-GFP+;NG2-dsRed+ 
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/023/SRR12045623/SRR12045623.fastq.gz -o 
-Mmus_PCSc_1.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/021/SRR12045621/SRR12045621.fastq.gz -o 
-Mmus_PCSc_2.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/027/SRR12045627/SRR12045627.fastq.gz -o 
-Mmus_PCSc_3.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/029/SRR12045629/SRR12045629.fastq.gz -o 
-Mmus_PCSc_4.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/035/SRR12045635/SRR12045635.fastq.gz -o 
-Mmus_PCSc_5.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/037/SRR12045637/SRR12045637.fastq.gz -o 
-Mmus_PCSc_6.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/042/SRR12045642/SRR12045642.fastq.gz -o 
-Mmus_PCSc_7.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/040/SRR12045640/SRR12045640.fastq.gz -o 
-Mmus_PCSc_8.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/048/SRR12045648/SRR12045648.fastq.gz -o 
-Mmus_PCSc_9.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/050/SRR12045650/SRR12045650.fastq.gz -o 
-Mmus_PCSc_10.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/055/SRR12045655/SRR12045655.fastq.gz -o 
-Mmus_PCSc_11.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/053/SRR12045653/SRR12045653.fastq.gz -o 
-Mmus_PCSc_12.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/023/SRR12045623/SRR12045623.fastq.gz -o Mmus_PCSc_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/021/SRR12045621/SRR12045621.fastq.gz -o Mmus_PCSc_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/027/SRR12045627/SRR12045627.fastq.gz -o Mmus_PCSc_3.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/029/SRR12045629/SRR12045629.fastq.gz -o Mmus_PCSc_4.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/035/SRR12045635/SRR12045635.fastq.gz -o Mmus_PCSc_5.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/037/SRR12045637/SRR12045637.fastq.gz -o Mmus_PCSc_6.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/042/SRR12045642/SRR12045642.fastq.gz -o Mmus_PCSc_7.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/040/SRR12045640/SRR12045640.fastq.gz -o Mmus_PCSc_8.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/048/SRR12045648/SRR12045648.fastq.gz -o Mmus_PCSc_9.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/050/SRR12045650/SRR12045650.fastq.gz -o Mmus_PCSc_10.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/055/SRR12045655/SRR12045655.fastq.gz -o Mmus_PCSc_11.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR120/053/SRR12045653/SRR12045653.fastq.gz -o Mmus_PCSc_12.fastq.gz
 
 ### Mazare 2020 (Mmus)
 # This is TRAP ONLY: RNA-seq raw data of ribosome-bound mRNAs extracted from whole astrocytes and PAPs by purifying GFP ribosomes and sequencing RNAs attached to them
@@ -166,30 +145,18 @@ curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR108/035/SRR10877135/SRR10877135.fa
 ### Thakurela 2016 (Mmus)
 # This is myelin microdissection at various stages of mouse development
 # Idk if we should compare all or choose oldest/6 or 24mo
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR318/006/SRR3181086/SRR3181086.fastq.gz -o 
-Mmus_Myelin_P75_R2.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR318/003/SRR3181083/SRR3181083.fastq.gz -o 
-Mmus_Myelin_P18_R2.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR318/007/SRR3181087/SRR3181087.fastq.gz -o 
-Mmus_Myelin_P75_R3.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR318/002/SRR3181082/SRR3181082.fastq.gz -o 
-Mmus_Myelin_P18_R1.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR318/005/SRR3181085/SRR3181085.fastq.gz -o 
-Mmus_Myelin_P75_R1.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR318/004/SRR3181084/SRR3181084.fastq.gz -o 
-Mmus_Myelin_P18_R3.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR318/008/SRR3181088/SRR3181088.fastq.gz -o 
-Mmus_Myelin_6mo_R1.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR318/000/SRR3181090/SRR3181090.fastq.gz -o 
-Mmus_Myelin_6mo_R3.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR318/009/SRR3181089/SRR3181089.fastq.gz -o 
-Mmus_Myelin_6mo_R2.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR318/003/SRR3181093/SRR3181093.fastq.gz -o 
-Mmus_Myelin_24mo_R3.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR318/002/SRR3181092/SRR3181092.fastq.gz -o 
-Mmus_Myelin_24mo_R2.fastq.gz
-curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR318/001/SRR3181091/SRR3181091.fastq.gz -o 
-Mmus_Myelin_24mo_R1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR318/006/SRR3181086/SRR3181086.fastq.gz -o Mmus_Myelin_P75_R2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR318/003/SRR3181083/SRR3181083.fastq.gz -o Mmus_Myelin_P18_R2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR318/007/SRR3181087/SRR3181087.fastq.gz -o Mmus_Myelin_P75_R3.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR318/002/SRR3181082/SRR3181082.fastq.gz -o Mmus_Myelin_P18_R1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR318/005/SRR3181085/SRR3181085.fastq.gz -o Mmus_Myelin_P75_R1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR318/004/SRR3181084/SRR3181084.fastq.gz -o Mmus_Myelin_P18_R3.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR318/008/SRR3181088/SRR3181088.fastq.gz -o Mmus_Myelin_6mo_R1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR318/000/SRR3181090/SRR3181090.fastq.gz -o Mmus_Myelin_6mo_R3.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR318/009/SRR3181089/SRR3181089.fastq.gz -o Mmus_Myelin_6mo_R2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR318/003/SRR3181093/SRR3181093.fastq.gz -o Mmus_Myelin_24mo_R3.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR318/002/SRR3181092/SRR3181092.fastq.gz -o Mmus_Myelin_24mo_R2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR318/001/SRR3181091/SRR3181091.fastq.gz -o Mmus_Myelin_24mo_R1.fastq.gz
 
 ### Vasek 2021 (Mmus)
 
@@ -231,7 +198,8 @@ DSG_review/Rawfastq/FastQC/*_fastqc.zip \
 ```{bash}
 mkdir -p DSG_review/trimmed
 
-for file in DSG_review/Rawfastq/*.fastq.gz
+## Mouse
+for file in DSG_review/Rawfastq/Mmus_*.fastq.gz
 do
 echo "Processing file $file"
 base=$(basename "$file") 
@@ -249,7 +217,58 @@ $file
 echo ""
 done
 
+## Rat
+for file in DSG_review/Rawfastq/Rnor_*_read1.fastq.gz
+do
+echo "Processing file $file"
+base=$(basename "$file") 
+
+infile1=$file
+infile2="$(echo ${file} |sed -e 's/read1/read2/')" 
+outfile1="$(echo ${base} |sed -e 's/_read1.fastq.gz/_read1_trimmed.fastq.gz/')" 
+outfile2="$(echo ${outfile1} |sed -e 's/read1/read2/')" 
+
+cutadapt \
+-a AGATCGGAAGAGCACACGTCTGAACTCCAGTCA \
+-A AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT \
+--times 2 \
+--cores=4 \
+-m 30 \
+--trim-n \
+--report=minimal \
+-o DSG_review/trimmed/$outfile1 \
+-p DSG_review/trimmed/$outfile2 \
+$infile1 $infile2
+echo ""
+done
+
 ```
+
+### Combine technical replicates of Mazare 2020
+
+```{bash}
+cd DSG_review/trimmed
+
+## Concatenate
+cat Mmus_Astrocytes-C_wholecell_trap1_*_trimmed.fastq.gz > Mmus_Astrocytes-C_wholecell_trap1_trimmed.fastq.gz
+cat Mmus_Astrocytes-C_wholecell_trap2_*_trimmed.fastq.gz > Mmus_Astrocytes-C_wholecell_trap2_trimmed.fastq.gz
+cat Mmus_Astrocytes-C_wholecell_trap3_*_trimmed.fastq.gz > Mmus_Astrocytes-C_wholecell_trap3_trimmed.fastq.gz
+cat Mmus_Astrocytes-C_PAP_trap1_*_trimmed.fastq.gz > Mmus_Astrocytes-C_PAP_trap1_trimmed.fastq.gz
+cat Mmus_Astrocytes-C_PAP_trap2_*_trimmed.fastq.gz > Mmus_Astrocytes-C_PAP_trap2_trimmed.fastq.gz
+cat Mmus_Astrocytes-C_PAP_trap3_*_trimmed.fastq.gz > Mmus_Astrocytes-C_PAP_trap3_trimmed.fastq.gz
+
+## Remove technical libraries 
+rm Mmus_Astrocytes-C_wholecell_trap1_*_trimmed.fastq.gz
+rm Mmus_Astrocytes-C_wholecell_trap2_*_trimmed.fastq.gz
+rm Mmus_Astrocytes-C_wholecell_trap3_*_trimmed.fastq.gz
+rm Mmus_Astrocytes-C_PAP_trap1_*_trimmed.fastq.gz
+rm Mmus_Astrocytes-C_PAP_trap2_*_trimmed.fastq.gz
+rm Mmus_Astrocytes-C_PAP_trap3_*_trimmed.fastq.gz
+
+cd ../..
+
+```
+
 
 ## Filter Contaminant Reads
 
@@ -261,7 +280,8 @@ done
 ```{bash}
 mkdir -p DSG_review/filtered
 
-for file in DSG_review/trimmed/*_trimmed.fastq.gz
+## Mouse libraries - SE sequences libraries only
+for file in DSG_review/trimmed/Mmus_*_trimmed.fastq.gz
 do
 echo "Processing file $file"
 base=$(basename "$file") 
@@ -269,11 +289,37 @@ outfile="$(echo ${base} |sed -e 's/_trimmed.fastq.gz/_filtered.fastq.gz/')"
 outstat="$(echo ${base} |sed -e 's/_trimmed.fastq.gz/_filtered.stat.txt/')" 
 bbduk.sh in=$file \
 out=DSG_review/filtered/$outfile \
-ref=GENOMEDIR/contaminants/Dmel_lrRNA_large.fasta,GENOMEDIR/contaminants/Dmel_rRNA_NCBI.fasta,GENOMEDIR/contaminants/polyA_polyC.fasta,GENOMEDIR/contaminants/phix174_ill.ref.fa.gz \
+ref=GENOMEDIR/contaminants/Mmus_rRNA_NCBI.fasta,GENOMEDIR/contaminants/polyA_polyC.fasta,GENOMEDIR/contaminants/phix174_ill.ref.fa.gz \
 k=27 \
 hdist=1 \
 -Xmx32g \
 stats=DSG_review/filtered/$outstat
+echo ""
+done
+
+## Rat libraries - PE sequenced libraries only
+for file in DSG_review/trimmed/Rnor_*_read1_trimmed.fastq.gz
+do
+echo "Processing file $file"
+base=$(basename "$file") 
+
+infile1=$file
+infile2="$(echo ${file} |sed -e 's/read1/read2/')"
+outfile1="$(echo ${base} |sed -e 's/_read1_trimmed.fastq.gz/_read1_filtered.fastq.gz/')" 
+outfile2="$(echo ${base} |sed -e 's/_read1_trimmed.fastq.gz/_read2_filtered.fastq.gz/')" 
+outstat="$(echo ${base} |sed -e 's/_read1_trimmed.fastq.gz/_filtered.stat.txt/')" 
+
+bbduk.sh \
+in1=$infile1 \
+in2=$infile2 \
+out1=DSG_review/filtered/$outfile1 \
+out2=DSG_review/filtered/$outfile2 \
+ref=GENOMEDIR/contaminants/Rnor_rRNA_NCBI.fasta,GENOMEDIR/contaminants/polyA_polyC.fasta,GENOMEDIR/contaminants/phix174_ill.ref.fa.gz \
+k=27 \
+hdist=1 \
+-Xmx32g \
+stats=DSG_review/filtered/$outstat
+
 echo ""
 done
 
@@ -341,7 +387,8 @@ GENOMEDIR/Rnor/Rattus_norvegicus.Rnor_6.0.98.gtf.gz
 ```{bash}
 mkdir -p DSG_review/kallisto_results
 
-for file in DSG_review/filtered/*.fastq.gz 
+## Mouse libraries - SE sequenced only
+for file in DSG_review/filtered/Mmus_*_filtered.fastq.gz 
 do 
 echo "Processing file $file" 
 base=$(basename "$file") 
@@ -349,17 +396,35 @@ outfolder="$(echo ${base} |sed -e 's/_filtered.fastq.gz//')"
 mkdir -p DSG_review/kallisto_results/$outfolder
 
 kallisto quant \
--i GENOMEDIR/kallisto/kallisto_index_dmel_ensembl99_cdna_intron \
+-i GENOMEDIR/Mmus/kallisto/kallisto_index_Mmus_ensembl96_cdna_intron \
 -o DSG_review/kallisto_results/$outfolder \
--b 100 \
 --single \
 -l 200 \
 -s 30 \
 -t 4 \
 $file 
-
 echo ""
 done
+
+## Rat libraries - PE sequenced only
+for file in DSG_review/filtered/Rnor_*_read1_filtered.fastq.gz 
+do 
+echo "Processing file $file" 
+base=$(basename "$file") 
+outfolder="$(echo ${base} |sed -e 's/_read1_filtered.fastq.gz//')" 
+mkdir -p DSG_review/kallisto_results/$outfolder
+
+infile1=$file
+infile2="$(echo ${file} |sed -e 's/read1/read2/')"
+
+kallisto quant \
+-i GENOMEDIR/Rnor/kallisto/kallisto_index_Rnor_ensembl98_cdna_intron \
+-o DSG_review/kallisto_results/$outfolder \
+-t 4 \
+$infile1 $infile2
+echo ""
+done
+
 
 ```
 
@@ -402,6 +467,94 @@ head(gni_kallisto$length)
 
 dir.create("./data/external/DGS_review/DGE")
 saveRDS(gni_kallisto, "./data/external/DGS_review/DGE/gni_kallisto_full.RDS")
+
+```
+
+## Handling Vasek 2021 data
+
+Raw fastq dataset from Vasek 2021 is currently unavailable in GEO (Feb 2022). Instead, the authors provided raw HTSeq counts data analysed with Mmus Ensembl93 annotation. 
+
+```{r}
+library(tidyverse)
+library(tximport)
+library(rhdf5)
+
+# * * * * *  Get counts datatable compatible with Ensembl96
+
+## Read in raw HTSeq counts data
+vasek_rawcount_files <- list.files("./RNAseq/Rawdata_unavailable/Vasek2021/GSE161460_Vasek2021_Raw", 
+                                   pattern = ".txt.gz", full.names = TRUE) 
+vasek_rawcounts <- map(vasek_rawcount_files, function(x){
+  name <- basename(x) %>% str_remove(".txt.gz")
+  read_tsv(x, col_names = FALSE) %>%
+    dplyr::select("gene_id" = X1, !!name := X2)
+}) %>%
+  purrr::reduce(full_join, by = "gene_id") %>%
+  filter(str_detect(gene_id, "ENSM"))
+
+## How many genes from Mmus Ensembl93 are incompatible with Ensembl96?
+tx2gene <- read_tsv("./RNAseq/Mmus_kb_output_t2g.txt", col_names = FALSE)
+colnames(tx2gene) <- c("tx_id", "gene_id", "gene_name", "gene_name_version", "chr", "start", "end", "strand")
+
+ens96_point_removed <- tx2gene %>% 
+  dplyr::select(gene_id) %>%
+  distinct() %>%
+  mutate(gene_id = str_replace(gene_id, "\\..*", ""))
+
+vasek_ens96_incompatible <- vasek_rawcounts %>%
+  mutate(is_ens96_compatible = if_else(gene_id %in% ens96_point_removed$gene_id, TRUE, FALSE)) %>%
+  filter(is_ens96_compatible == FALSE)
+
+vasek_ens96_incompatible %>% nrow() ## most of these are totally deprecated or are pseudogenes with none-low counts - going to remove them from analysis 
+
+## Save counts table
+vasek_rawcounts %>%
+  filter(!(gene_id %in% vasek_ens96_incompatible$gene_id)) %>%
+  saveRDS("./RNAseq/Rawdata_unavailable/Vasek2021/Vasek2021_counts_dataframe.RDS")
+
+
+# * * * * * Convert counts table to TPM table
+
+## Conversion via Mike Love's method: https://support.bioconductor.org/p/91218/
+counts_to_tpm <- function(counts,len) {
+  x <- counts/len
+  return(t(t(x)*1e6/colSums(x)))
+}
+
+## Get counts matrix
+counts <- vasek_rawcounts %>%
+  column_to_rownames(var = "gene_id") %>%
+  as.matrix()
+
+## Get effective gene length matrix from one of the kallisto output
+efflen <- readRDS("./RNAseq/Mmus_ensembl96_efflen.RDS") %>%
+  as.data.frame() %>%
+  rownames_to_column(var = "gene_id") %>%
+  dplyr::rename("effective_length" = 2) %>%
+  mutate(gene_id = str_replace(gene_id, "\\..*", ""))
+
+len <- vasek_rawcounts %>%
+  left_join(efflen, by = "gene_id") %>%
+  dplyr::select(gene_id, effective_length) %>%
+  column_to_rownames(var = "gene_id") %>%
+  as.matrix() %>%
+  .[, rep(1, ncol(counts))]
+
+## Filter those with effective length > 1
+keep <- !is.na(len[, 1]) 
+keep <- as.vector(keep)
+unique(keep)
+
+counts <- counts[keep,]
+len <- len[keep,]
+
+## Convert
+vasek_tpm <- counts_to_tpm(counts, len)
+
+## Save vasek tpm
+vasek_tpm %>% saveRDS("./RNAseq/Rawdata_unavailable/Vasek2021/Vasek2021_TPM_matrix.RDS")
+
+
 
 ```
 
