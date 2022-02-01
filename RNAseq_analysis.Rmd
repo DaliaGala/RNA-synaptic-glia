@@ -383,6 +383,7 @@ GENOMEDIR/Rnor/Rattus_norvegicus.Rnor_6.0.98.gtf.gz
 ```
 
 ### Pseudoalign to transcriptome
+Running on mprocessor1
 
 ```{bash}
 mkdir -p DSG_review/kallisto_results
@@ -427,6 +428,52 @@ done
 
 
 ```
+
+### Pseudoalign to transcriptome
+Running on alien computer
+
+```{bash}
+mkdir -p /mnt/d/Jeff_Davis-lab/kallisto_results
+
+## Mouse libraries - SE sequenced only
+for file in /mnt/share/Data/Sequencing/DSG_review/filtered/Mmus_*_filtered.fastq.gz 
+do 
+echo "Processing file $file" 
+base=$(basename "$file") 
+outfolder="$(echo ${base} |sed -e 's/_filtered.fastq.gz//')" 
+mkdir -p /mnt/d/Jeff_Davis-lab/kallisto_results/$outfolder
+
+kallisto quant \
+-i /mnt/d/Jeff_Davis-lab/GENOMEDIR/kallisto_index_Mmus_ensembl96_cdna_intron \
+-o /mnt/d/Jeff_Davis-lab/kallisto_results/$outfolder \
+--single \
+-l 200 \
+-s 30 \
+-t 6 \
+$file 
+echo ""
+done
+
+## Rat libraries - PE sequenced only
+for file in /mnt/share/Data/Sequencing/DSG_review/filtered/Rnor_*_read1_filtered.fastq.gz 
+do 
+echo "Processing file $file" 
+base=$(basename "$file") 
+outfolder="$(echo ${base} |sed -e 's/_read1_filtered.fastq.gz//')" 
+mkdir -p /mnt/d/Jeff_Davis-lab/kallisto_results/$outfolder
+
+infile1=$file
+infile2="$(echo ${file} |sed -e 's/read1/read2/')"
+
+kallisto quant \
+-i /mnt/d/Jeff_Davis-lab/GENOMEDIR/kallisto_index_Rnor_ensembl98_cdna_intron \
+-o /mnt/d/Jeff_Davis-lab/kallisto_results/$outfolder \
+-t 6 \
+$infile1 $infile2
+echo ""
+done
+```
+
 
 ## Preprocessing Data Tables
 
@@ -527,7 +574,7 @@ counts <- vasek_rawcounts %>%
   as.matrix()
 
 ## Get effective gene length matrix from one of the kallisto output
-efflen <- readRDS("./RNAseq/Mmus_ensembl96_efflen.RDS") %>%
+efflen <- readRDS("./RNAseq/Rawdata_unavailable/Vasek2021/Mmus_ensembl96_efflen.RDS") %>%
   as.data.frame() %>%
   rownames_to_column(var = "gene_id") %>%
   dplyr::rename("effective_length" = 2) %>%
