@@ -686,34 +686,43 @@ unique(keep)
 counts <- counts[keep,]
 len <- len[keep,]
 
-## Convert
+## Convert then save raw tpm matrix
 vasek_tpm <- counts_to_tpm(counts, len)
 
-## Save vasek tpm
 vasek_tpm %>% saveRDS("./RNAseq/Rawdata_unavailable/Vasek2021/Vasek2021_TPM_matrix.RDS")
 
-## Save vasek tidy df and avg tpm df
+## Change library names to human-readable aliases then save the tidy tpm dataframe
+aliases <- read_csv("./RNAseq/Rawdata_unavailable/Vasek2021/filename_alias.csv") %>%
+  mutate(original_alias = str_remove(original_alias, ".txt.gz")) %>%
+  mutate(converted_alias = str_replace(converted_alias, "Vasek", "Microglia")) %>%
+  mutate(converted_alias = str_replace(converted_alias, "TRAP_", "trap")) %>%
+  mutate(converted_alias = str_replace(converted_alias, "_induced", "")) %>%
+  mutate(converted_alias = str_replace(converted_alias, "N_", "N_txn")) %>%
+  mutate(converted_alias = str_replace(converted_alias, "x_", "x_txn")) %>%
+  mutate(converted_alias = str_replace(converted_alias, "txntrap", "trap"))
+
 vasek_tpm_tidy <- vasek_tpm %>%
   as.data.frame() %>%
   rownames_to_column(var = "gene_id") %>%
-  pivot_longer(cols = starts_with("Mmus"),
-               names_to = "library_id",
-               values_to = "TPM") %>%
-  mutate(gene_id = str_replace(gene_id, "\\..*", "")) %>%
-  mutate(library_group = str_remove(library_id, "Mmus_") %>% 
-           str_sub(1, nchar(.)-1)) %>%
-  mutate(species = "Mmus")
+  pivot_longer(cols = contains("GSM"),
+               values_to = "TPM",
+               names_to = "original_alias") %>%
+  left_join(aliases) %>%
+  dplyr::rename("library_id" = converted_alias) %>%
+  mutate(library_group = str_sub(library_id, 1, nchar(library_id)-1)) %>%
+  filter(!str_detect(library_group, "control"))
 
 saveRDS(vasek_tpm_tidy, "./RNAseq/Rawdata_unavailable/Vasek2021/Vasek_TPM_tidy.RDS")
 
-vasek_avgTPM_wide <- vasek_tpm_wide %>%
-  group_by(gene_id, species, library_group) %>%
+## Save vasek avg tpm df
+vasek_avgTPM_wide <- vasek_tpm_tidy%>%
+  group_by(gene_id, library_group) %>%
   summarise(average_TPM = mean(TPM)) %>%
   pivot_wider(id_cols = gene_id,
               values_from = average_TPM,
               names_from = library_group)
 
-saveRDS(vasek_avgTPM_wide, "./RNAseq/Rawdata_unavailable/Vasek2021/Vasek_avgTPM.RDS")
+saveRDS(vasek_avgTPM_wide, "./RNAseq/Rawdata_unavailable/Vasek2021/Vasek_avgTPM_wide.RDS")
 
 
 ```
@@ -800,9 +809,19 @@ saveRDS(Thomsen_cleaned, "./RNAseq/Rawdata_unavailable/Thomsen2013/Thomsen_avgTP
 ```
 
 
-## Combine TPM Dataframes: Kallisto + Vasek + Thomsen
+## Combine TPM Dataframes: from Kallisto + Vasek + Thomsen
 
 ```{r}
+vasek_avgTPM_wide <- readRDS("./RNAseq/Rawdata_unavailable/Vasek2021/Vasek_avgTPM_wide.RDS")
+Thomsen_cleaned <- readRDS("./RNAseq/Rawdata_unavailable/Thomsen2013/Thomsen_avgTPM_ensembl-converted.RDS")
+Mmus_kallisto_avgTPM_wide <- readRDS("./RNAseq/quant_results/Mmus_kallisto_avgTPM_wide.RDS")
+
+Mmus_avgTPM_wide <- left_join(Mmus_kallisto_avgTPM_wide, Thomsen_cleaned) %>%
+  left_join(vasek_avgTPM_wide) %>%
+  mutate(across(everything(), ~replace_na(.x, 0)))
+
+saveRDS(Mmus_avgTPM_wide, "./RNAseq/quant_results/Mmus_all-glia_avgTPM_wide.RDS")
+  
 
 ```
 
