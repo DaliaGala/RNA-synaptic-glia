@@ -559,7 +559,7 @@ Mmus_kallisto_TPM <- gni_kallisto$abundance %>%
                values_to = "TPM") %>%
   mutate(gene_id = str_replace(gene_id, "\\..*", "")) %>%
   mutate(library_group = str_remove(library_id, "Mmus_") %>% 
-           str_sub(1, nchar(.)-1)) %>%
+           str_remove(., "[[:digit:]]+$")) %>%
   mutate(species = "Mmus")
 
 saveRDS(Mmus_kallisto_TPM, "./RNAseq/quant_results/Mmus_kallisto_TPM_tidy.RDS")
@@ -808,10 +808,49 @@ saveRDS(Thomsen_cleaned, "./RNAseq/Rawdata_unavailable/Thomsen2013/Thomsen_avgTP
 
 ```
 
+## Convert Rnor Genes to Mmus Genes
 
-## Combine TPM Dataframes: from Kallisto + Vasek + Thomsen
+### Azevedo 2018 data
 
 ```{r}
+## Environment
+library(tidyverse)
+library(biomaRt)
+
+## Data 
+Rnor_kallisto_avgTPM_wide <- readRDS("./RNAseq/quant_results/Rnor_kallisto_avgTPM_wide.RDS")
+
+## Get conversion dataframe 
+listEnsemblArchives()
+rat_mart98 <- useMart("ENSEMBL_MART_ENSEMBL", dataset = "rnorvegicus_gene_ensembl", 
+                   host = "https://sep2019.archive.ensembl.org")
+listAttributes(rat_mart98) -> rat_mart98_attributes
+id_dictionary <- getBM(attributes = c("ensembl_gene_id", "mmusculus_homolog_ensembl_gene", "mmusculus_homolog_orthology_type"),
+      mart = rat_mart98,
+      filters = "ensembl_gene_id",
+      values = Rnor_kallisto_avgTPM_wide$gene_id) %>%
+  dplyr::select(-mmusculus_homolog_orthology_type)
+
+## Convert - Take median TPM for multi-mappers 
+azevedo_Mmus_converted <- Rnor_kallisto_avgTPM_wide %>%
+  left_join(id_dictionary, by = c("gene_id" = "ensembl_gene_id")) %>% 
+  filter(str_detect(mmusculus_homolog_ensembl_gene, "ENS")) %>%
+  group_by(mmusculus_homolog_ensembl_gene) %>%
+  summarise(Oligodendrocytes_soma_txn = median(Oligodendrocytes_soma_txn),
+            Oligodendrocytes_protrusion_txn = median(Oligodendrocytes_protrusion_txn)) %>%
+  ungroup() %>%
+  dplyr::rename("gene_id" = mmusculus_homolog_ensembl_gene)
+
+saveRDS(azevedo_Mmus_converted, "./RNAseq/quant_results/Azevedo_Mmus_converted_avgTPM_wide.RDS")
+
+```
+
+
+
+## Combine TPM Dataframes
+
+```{r}
+## Combine Mmus data
 vasek_avgTPM_wide <- readRDS("./RNAseq/Rawdata_unavailable/Vasek2021/Vasek_avgTPM_wide.RDS")
 Thomsen_cleaned <- readRDS("./RNAseq/Rawdata_unavailable/Thomsen2013/Thomsen_avgTPM_ensembl-converted.RDS")
 Mmus_kallisto_avgTPM_wide <- readRDS("./RNAseq/quant_results/Mmus_kallisto_avgTPM_wide.RDS")
@@ -821,9 +860,49 @@ Mmus_avgTPM_wide <- left_join(Mmus_kallisto_avgTPM_wide, Thomsen_cleaned) %>%
   mutate(across(everything(), ~replace_na(.x, 0)))
 
 saveRDS(Mmus_avgTPM_wide, "./RNAseq/quant_results/Mmus_all-glia_avgTPM_wide.RDS")
+
+## Combine Mmus with Rnor-converted data 
+Mmus_avgTPM_wide <- readRDS("./RNAseq/quant_results/Mmus_all-glia_avgTPM_wide.RDS")
+azevedo_Mmus_converted <- readRDS("./RNAseq/quant_results/Azevedo_Mmus_converted_avgTPM_wide.RDS")
+
+avgTPM_wide <- left_join(Mmus_avgTPM_wide, azevedo_Mmus_converted) %>%
+  mutate(across(everything(), ~replace_na(.x, 0)))
   
 
 ```
+
+
+\newpage
+
+
+# CREATE TRANSCRIPTOME TABLE
+
+```{r}
+avgTPM_wide %>% colnames() %>% str_remove(., "trap")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
