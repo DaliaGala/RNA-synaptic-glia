@@ -645,11 +645,25 @@ vasek_ens96_incompatible <- vasek_rawcounts %>%
 
 vasek_ens96_incompatible %>% nrow() ## most of these are totally deprecated or are pseudogenes with none-low counts - going to remove them from analysis 
 
-## Save counts table
+## Save counts table and filter out non-specific txn counts
 vasek_rawcounts %>%
   filter(!(gene_id %in% vasek_ens96_incompatible$gene_id)) %>%
   saveRDS("./RNAseq/Rawdata_unavailable/Vasek2021/Vasek2021_counts_dataframe.RDS")
 
+## Change library names and save counts dataframe 
+aliases <- read_csv("./RNAseq/Rawdata_unavailable/Vasek2021/filename_alias.csv") %>%
+  mutate(original_alias = str_remove(original_alias, ".txt.gz")) 
+
+vasek_rawcounts %>%
+  pivot_longer(cols = contains("htseq"),
+               names_to = "library",
+               values_to = "counts") %>%
+  left_join(aliases, by = c("library" = "original_alias")) %>%
+  dplyr::select(-library) %>%
+  pivot_wider(id_cols = "gene_id",
+              names_from = "converted_alias",
+              values_from = "counts") %>%
+  saveRDS("./RNAseq/Rawdata_unavailable/Vasek2021/Vasek2021_counts_dataframe_names_converted.RDS")
 
 # * * * * * Convert counts table to TPM table
 
@@ -693,13 +707,7 @@ vasek_tpm %>% saveRDS("./RNAseq/Rawdata_unavailable/Vasek2021/Vasek2021_TPM_matr
 
 ## Change library names to human-readable aliases then save the tidy tpm dataframe
 aliases <- read_csv("./RNAseq/Rawdata_unavailable/Vasek2021/filename_alias.csv") %>%
-  mutate(original_alias = str_remove(original_alias, ".txt.gz")) %>%
-  mutate(converted_alias = str_replace(converted_alias, "Vasek", "Microglia")) %>%
-  mutate(converted_alias = str_replace(converted_alias, "TRAP_", "trap")) %>%
-  mutate(converted_alias = str_replace(converted_alias, "_induced", "")) %>%
-  mutate(converted_alias = str_replace(converted_alias, "N_", "N_txn")) %>%
-  mutate(converted_alias = str_replace(converted_alias, "x_", "x_txn")) %>%
-  mutate(converted_alias = str_replace(converted_alias, "txntrap", "trap"))
+  mutate(original_alias = str_remove(original_alias, ".txt.gz"))
 
 vasek_tpm_tidy <- vasek_tpm %>%
   as.data.frame() %>%
@@ -851,8 +859,17 @@ saveRDS(azevedo_Mmus_converted, "./RNAseq/quant_results/Azevedo_Mmus_converted_a
 
 ```{r}
 ## Combine Mmus data
-vasek_avgTPM_wide <- readRDS("./RNAseq/Rawdata_unavailable/Vasek2021/Vasek_avgTPM_wide.RDS")
-Thomsen_cleaned <- readRDS("./RNAseq/Rawdata_unavailable/Thomsen2013/Thomsen_avgTPM_ensembl-converted.RDS")
+vasek_avgTPM_wide <- readRDS("./RNAseq/Rawdata_unavailable/Vasek2021/Vasek_avgTPM_wide.RDS") %>%
+  dplyr::select(-contains("txn")) %>%
+  rename_with(function(x){
+    str_remove(x, "_induced")
+  })
+
+Thomsen_cleaned <- readRDS("./RNAseq/Rawdata_unavailable/Thomsen2013/Thomsen_avgTPM_ensembl-converted.RDS") %>%
+  rename_with(function(x){
+    str_c(x,"_txn", sep = "")
+  }) %>%
+  dplyr::rename("gene_id" = gene_id_txn)
 Mmus_kallisto_avgTPM_wide <- readRDS("./RNAseq/quant_results/Mmus_kallisto_avgTPM_wide.RDS")
 
 Mmus_avgTPM_wide <- left_join(Mmus_kallisto_avgTPM_wide, Thomsen_cleaned) %>%
@@ -867,7 +884,8 @@ azevedo_Mmus_converted <- readRDS("./RNAseq/quant_results/Azevedo_Mmus_converted
 
 avgTPM_wide <- left_join(Mmus_avgTPM_wide, azevedo_Mmus_converted) %>%
   mutate(across(everything(), ~replace_na(.x, 0)))
-  
+
+saveRDS(avgTPM_wide, "./RNAseq/quant_results/all-glia_avgTPM_wide.RDS")
 
 ```
 
@@ -878,7 +896,7 @@ avgTPM_wide <- left_join(Mmus_avgTPM_wide, azevedo_Mmus_converted) %>%
 # CREATE TRANSCRIPTOME TABLE
 
 ```{r}
-avgTPM_wide %>% colnames() %>% str_remove(., "trap")
+avgTPM_wide %>% colnames()
 ```
 
 
