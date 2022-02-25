@@ -1087,6 +1087,61 @@ saveRDS(aa_de_result, "./RNAseq/summary_table/preferential_localisation/aa_de-re
 
 ```
 
+### Calculate number of datasets supporting preferential localisation and their mean l2fc
+
+ - localisation = padj < 0.05 and l2fc > 0 (deseq2) ot l2fc > 0 (Helicos TPM)
+
+```{r}
+## Deseq2 results
+odc_de_result_Mmus <- readRDS("./RNAseq/summary_table/preferential_localisation/odc_de-result_Mmus-converted.RDS")
+odc_enriched <- odc_de_result_Mmus %>%
+  filter(padj < 0.05) %>% 
+  dplyr::select(gene_id, log2FoldChange, padj) %>%
+  mutate(cell_type = "Oligodendrocytes")
+
+aa_de_result <- readRDS("./RNAseq/summary_table/preferential_localisation/aa_de-result_raw.RDS")
+aa_enriched <- aa_de_result %>%
+  filter(padj < 0.05) %>%
+  dplyr::select(gene_id, log2FoldChange, padj) %>%
+  mutate(cell_type = "Astrocytes_A")
+
+## Numerical results from Helicos
+helicos_enriched <- readRDS("./RNAseq/summary_table/preferential_localisation/helicos_l2fc.RDS") %>%
+  dplyr::select(gene_id, contains("l2fc")) %>%
+  pivot_longer(cols = contains("l2fc"),
+               names_to = "cell_type",
+               values_to = "log2FoldChange") %>%
+  mutate(padj = NA) %>%
+  dplyr::select(gene_id, log2FoldChange, padj, cell_type) %>%
+  filter(!is.na(log2FoldChange))
+
+## Combine into a tidy dataframe
+preferential_localisation_tidy <- bind_rows(
+  odc_enriched, 
+  aa_enriched,
+  helicos_enriched
+) %>%
+  mutate(pref_localised = if_else(log2FoldChange > 0 , TRUE, FALSE))
+
+preferential_localisation_tidy %>%
+  saveRDS("./RNAseq/summary_table/preferential_localisation/preferential_localisation_tidy.RDS")
+
+## Get summary dataframe
+preferential_localisation_summary <- preferential_localisation_tidy %>%
+  group_by(gene_id) %>%
+  summarise(enriched_in_protrusion = sum(pref_localised),
+            mean_RNA_enrichment_l2fc = mean(log2FoldChange, na.rm = TRUE))
+
+preferential_localisation_summary %>%
+  saveRDS("./RNAseq/summary_table/preferential_localisation/preferential_localisation_summary.RDS")
+
+## Check distribution
+preferential_localisation_summary %>%
+  ggplot(aes(x = enriched_in_protrusion)) +
+  geom_histogram(bins = 4)
+
+```
+
 
 ## Ribosome Association In Protrusions
 
@@ -1121,11 +1176,178 @@ saveRDS(protrusion_translation_datasets,
 
 ## Preferential Translation In Protrusions
 
+ - Preferentially translated = p < 0.05, l2fc > 0
+
 ```{r}
+library(tidyverse)
+library(DESeq2)
+library(IHW)
+
+# * * * * * Astrocyte trap datasets 
+
+## Define function
+run_deseq2 <- function(kallisto_output, cell_type){
+  
+  ## Filter kallisto results
+  kallisto <- kallisto_output
+  kallisto$abundance <- kallisto$abundance %>%
+    as.data.frame() %>%
+    dplyr::select(contains(cell_type)) %>%
+    dplyr::select(contains("trap")) %>%
+    as.matrix()
+  kallisto$counts <- kallisto$counts %>%
+    as.data.frame() %>%
+    dplyr::select(contains(cell_type)) %>%
+    dplyr::select(contains("trap")) %>%
+    as.matrix()
+  kallisto$length <- kallisto$length %>%
+    as.data.frame() %>%
+    dplyr::select(contains(cell_type)) %>%
+    dplyr::select(contains("trap")) %>%
+    as.matrix()
+  
+  ## Create meta table
+  meta <- tibble(rownames = colnames(kallisto$counts)) %>%
+    mutate(compartment = case_when(
+      str_detect(rownames, "protrusion") ~ "protrusion",
+      str_detect(rownames, "soma") ~ "soma"
+    )) %>%
+    column_to_rownames(var = "rownames")
+  
+  ## Run deseq2
+  dds <- DESeqDataSetFromTximport(kallisto, colData = meta,
+                                     design = ~ compartment)
+  dds$compartment <- relevel(dds$compartment, ref = "soma")
+  dds <- DESeq(dds)
+  res <- results(dds, filterFun = ihw)
+  res
+  resultsNames(dds)
+  res_lfc <- lfcShrink(dds, coef = "compartment_protrusion_vs_soma", 
+                          res = res, type = "apeglm")
+  
+  de_result <- as_tibble(res_lfc) %>%
+    mutate(gene_id = rownames(res_lfc)) %>%
+    mutate(gene_id = str_replace(gene_id, "\\..*", "")) %>%
+    mutate(cell_type = cell_type) %>%
+    return()
+  
+}
+
+## Import kallisto output
+kallisto_output <- readRDS("./RNAseq/quant_results/Mmus_kallisto_tximport_gni.RDS")
+
+## Run deseq2
+AA_trap <- run_deseq2(kallisto_output, "Astrocytes-A") 
+AB_trap <- run_deseq2(kallisto_output, "Astrocytes-B") 
+AC_trap <- run_deseq2(kallisto_output, "Astrocytes-C") 
+
+## Collate results 
+Astrocyte_trap_results <- bind_rows(AA_trap, AB_trap, AC_trap)
+
+Astrocyte_trap_results %>%
+  saveRDS("./RNAseq/summary_table/preferential_translation/Astrocyte_trap-results_tidy.RDS")
+
+# * * * * * Microglia trap dataset 
+
+##
+microglia_counts <- readRDS("./RNAseq/Rawdata_unavailable/Vasek2021/Vasek2021_counts_dataframe_names_converted.RDS") %>%
+  dplyr::select(gene_id, contains("induced")) %>%
+  dplyr::select(-contains("txn")) %>%
+  rename_with(function(x){
+    str_replace(x, "_induced", "")
+    }) %>%
+  column_to_rownames(var = "gene_id") %>%
+  as.matrix()
+
+microglia_meta <- tibble(rownames = colnames(microglia_counts)) %>%
+  mutate(compartment = case_when(
+    str_detect(rownames, "protrusion") ~ "protrusion",
+    str_detect(rownames, "soma") ~ "soma"
+  )) %>%
+  column_to_rownames(var = "rownames")
+
+## Run deseq2
+microglia_dds <- DESeqDataSetFromMatrix(microglia_counts, colData = microglia_meta,
+                                    design = ~ compartment)
+microglia_dds$compartment <- relevel(microglia_dds$compartment, ref = "soma")
+microglia_dds <- DESeq(microglia_dds)
+microglia_res <- results(microglia_dds, filterFun = ihw)
+microglia_res
+resultsNames(microglia_dds)
+microglia_res_lfc <- lfcShrink(microglia_dds, coef = "compartment_protrusion_vs_soma", 
+                         res = microglia_res, type = "apeglm")
+
+microglia_de_result <- as_tibble(microglia_res_lfc) %>%
+  mutate(gene_id = rownames(microglia_res_lfc)) %>%
+  mutate(gene_id = str_replace(gene_id, "\\..*", "")) %>%
+  mutate(cell_type = "Microglia")
+
+microglia_de_result %>%
+  saveRDS("./RNAseq/summary_table/preferential_translation/Microglia_trap-results_tidy.RDS")
+
+# * * * * * Summary
+
+## Create tidy dataframe and summarise
+Astrocyte_trap_results <- readRDS("./RNAseq/summary_table/preferential_translation/Astrocyte_trap-results_tidy.RDS")
+microglia_de_result <-   readRDS("./RNAseq/summary_table/preferential_translation/Microglia_trap-results_tidy.RDS")
+
+trap_results_tidy <- bind_rows(Astrocyte_trap_results, microglia_de_result) %>%
+  filter(padj < 0.05) %>%
+  dplyr::select(gene_id, log2FoldChange, padj, cell_type) %>%
+  mutate(pref_translated = if_else(log2FoldChange > 0 , TRUE, FALSE))
+
+trap_results_tidy %>%
+  saveRDS("./RNAseq/summary_table/preferential_translation/trap_results_tidy.RDS")
+
+trap_results_summary <- trap_results_tidy %>%
+  group_by(gene_id) %>%
+  summarise(enhanced_translation_in_protrusion = sum(pref_translated),
+            mean_translation_enhancement_l2fc = mean(log2FoldChange, na.rm = TRUE))
+
+trap_results_summary %>%
+  saveRDS("./RNAseq/summary_table/preferential_translation/trap_results_summary.RDS")
+  
+## Check distribution
+trap_results_summary %>%
+  ggplot(aes(x = enhanced_translation_in_protrusion)) +
+  geom_histogram(bins = 4) 
 
 ```
 
 
+## Combine into a single dataframe
+
+```{r}
+## Get individual columns 
+protrusion_RNA <- readRDS("./RNAseq/summary_table/presence_in_protrusion/Protrusion-RNA_num-datasets.RDS")
+Mean_TPM <- readRDS("./RNAseq/summary_table/presence_in_protrusion/Protrusion-RNA_Mean-TPM.RDS")
+preferential_localisation_summary <-  readRDS("./RNAseq/summary_table/preferential_localisation/preferential_localisation_summary.RDS")
+protrusion_translation_datasets <- readRDS("./RNAseq/summary_table/translation_in_protrusion/Protrusion-translation_num-datasets.RDS")
+trap_results_summary <- readRDS("./RNAseq/summary_table/preferential_translation/trap_results_summary.RDS")
+
+## Join 
+df <- full_join(protrusion_RNA, Mean_TPM) %>%
+  full_join(preferential_localisation_summary) %>%
+  full_join(protrusion_translation_datasets) %>%
+  full_join(trap_results_summary)
+
+## Add gene symbol and names 
+library(biomaRt)
+mouse_mart96 <- useMart("ENSEMBL_MART_ENSEMBL", dataset = "mmusculus_gene_ensembl", 
+                   host = "https://apr2019.archive.ensembl.org")
+listAttributes(mouse_mart96) -> mouse_biomart_attributes
+id_dictionary <- getBM(attributes = c("ensembl_gene_id", "external_gene_name", "description"),
+      mart = mouse_mart96,
+      filters = "ensembl_gene_id",
+      values = df$gene_id)
+
+df_annotated <- left_join(df, id_dictionary, by = c("gene_id" = "ensembl_gene_id")) %>%
+  dplyr::select(gene_id, "gene_symbol" = external_gene_name, description, everything())
+
+df_annotated %>%
+  saveRDS("./RNAseq/summary_table/df_annotated.RDS")
+
+```
 
 
 
