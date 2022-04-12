@@ -1,0 +1,74 @@
+---
+title: "Top_GO_Dalia_version"
+output: pdf_document
+editor_options: 
+  chunk_output_type: console
+---
+# Environment
+```{r}
+library(tidyverse)
+library(janitor)
+# library(biomaRt)
+```
+# Get gene lists
+```{r}
+full_human_genes <- read_tsv("./data/external/Full_hs_gene_list.txt") %>% 
+  clean_names() %>%
+  pull(gene_stable_id)
+```
+# Get gene symbol id converter
+```{r}
+# mart.human <-  useMart("ensembl", dataset = "hsapiens_gene_ensembl")
+# human.gene.anno <- getBM(
+#   attributes = c("ensembl_gene_id", "external_gene_name", "gene_biotype"),
+#   mart = mart.human) %>% as_tibble()
+# write_tsv(human.gene.anno, "./data/external/ensembl_full_hsap_gene_list.txt")
+human.gene.anno <- read_tsv("./data/external/ensembl_full_hsap_gene_list.txt")
+```
+# Convert symbols to ids
+```{r}
+without_neuro <- read_csv("./data/Dalia/withoutNeuro.csv") %>%
+  mutate(Human_Symbol = case_when(
+    Human_Symbol == "PALM2-AKAP2" ~ "PALM2AKAP2",
+    TRUE ~ Human_Symbol
+  )) %>%
+  left_join(human.gene.anno, by = c("Human_Symbol" = "external_gene_name")) %>% pull(ensembl_gene_id)
+
+with_neuro <- read_csv("./data/Dalia/withNeuro.csv") %>%
+  mutate(Human_Symbol = case_when(
+    Human_Symbol == "PALM2-AKAP2" ~ "PALM2AKAP2",
+    Human_Symbol == "NARS" ~ "NARS1",
+    Human_Symbol == "ATP5MD" ~ "ATP5MDP1",
+    str_detect(Human_Symbol, "MLF") ~ "MLF2",
+    Human_Symbol == "H3F3B" ~ "H3-3B",
+    TRUE ~ Human_Symbol
+  )) %>%
+  left_join(human.gene.anno, by = c("Human_Symbol" = "external_gene_name")) %>% pull(ensembl_gene_id)
+```
+# Perform TopGO
+```{r}
+## Custom function
+source("./src/runTopGO.R")
+
+runTopGO_dalia <- function(ontology, target_list){
+  runTopGO(ontology = ontology,
+           species = "human",
+           backgroundGenes = full_human_genes,
+           targetedGenes = target_list) %>%
+    mutate(Ontology = ontology)
+}
+```
+## Define ontologies
+```{r}
+ontologies <- c("BP", "MF", "CC")
+```
+## Perform TopGO
+```{r}
+GO_with_neuro    <- map2_dfr(ontologies, list(with_neuro), runTopGO_dalia)
+GO_without_neuro <- map2_dfr(ontologies, list(without_neuro), runTopGO_dalia)
+```
+## Export
+```{r}
+write_csv(GO_with_neuro, "./output/DSG/GO_with_neuro_20211110.csv")
+write_csv(GO_without_neuro, "./output/DSG/GO_without_neuro_20211110.csv")
+```
