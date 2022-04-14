@@ -8,42 +8,27 @@ editor_options:
 ```{r}
 library(tidyverse)
 library(janitor)
-# library(biomaRt)
+library(biomaRt)
 ```
-# Get gene lists
+### Download genomes and annotations
+* ENSEMBL mouse 96
 ```{r}
-full_human_genes <- read_tsv("./data/external/Full_hs_gene_list.txt") %>% 
-  clean_names() %>%
-  pull(gene_stable_id)
+mouse_mart96 <- useMart("ENSEMBL_MART_ENSEMBL", dataset = "mmusculus_gene_ensembl", 
+                   host = "https://apr2019.archive.ensembl.org")
+#listAttributes(mouse_mart96)
+#listFilters(mouse_mart96)
+mouse_ens <- getBM(attributes = c("ensembl_gene_id", "external_gene_name", "gene_biotype"),
+      mart = mouse_mart96)
 ```
-# Get gene symbol id converter
+# Load the summary table
 ```{r}
-# mart.human <-  useMart("ensembl", dataset = "hsapiens_gene_ensembl")
-# human.gene.anno <- getBM(
-#   attributes = c("ensembl_gene_id", "external_gene_name", "gene_biotype"),
-#   mart = mart.human) %>% as_tibble()
-# write_tsv(human.gene.anno, "./data/external/ensembl_full_hsap_gene_list.txt")
-human.gene.anno <- read_tsv("./data/external/ensembl_full_hsap_gene_list.txt")
-```
-# Convert symbols to ids
-```{r}
-without_neuro <- read_csv("./data/Dalia/withoutNeuro.csv") %>%
-  mutate(Human_Symbol = case_when(
-    Human_Symbol == "PALM2-AKAP2" ~ "PALM2AKAP2",
-    TRUE ~ Human_Symbol
-  )) %>%
-  left_join(human.gene.anno, by = c("Human_Symbol" = "external_gene_name")) %>% pull(ensembl_gene_id)
-
-with_neuro <- read_csv("./data/Dalia/withNeuro.csv") %>%
-  mutate(Human_Symbol = case_when(
-    Human_Symbol == "PALM2-AKAP2" ~ "PALM2AKAP2",
-    Human_Symbol == "NARS" ~ "NARS1",
-    Human_Symbol == "ATP5MD" ~ "ATP5MDP1",
-    str_detect(Human_Symbol, "MLF") ~ "MLF2",
-    Human_Symbol == "H3F3B" ~ "H3-3B",
-    TRUE ~ Human_Symbol
-  )) %>%
-  left_join(human.gene.anno, by = c("Human_Symbol" = "external_gene_name")) %>% pull(ensembl_gene_id)
+summary_table <- read_csv("./Glial-summary-table.csv")
+all_protrusion <- filter(summary_table, RNA_in_protrusion == "12")
+all_enriched <- filter(summary_table, enriched_in_protrusion == "4"|enriched_in_protrusion == "3")
+all_translated <- filter(summary_table, translation_in_protrusion == "4")
+protrusion_enriched <- filter(summary_table, RNA_in_protrusion == "12" & enriched_in_protrusion == "4"|enriched_in_protrusion == "3")
+protrusion_translated <- filter(summary_table, RNA_in_protrusion == "12" & translation_in_protrusion == "4")
+protrusion_enriched_translated <- filter(summary_table, RNA_in_protrusion == "12" & translation_in_protrusion == "4" & enriched_in_protrusion == "3"|enriched_in_protrusion == "4")
 ```
 # Perform TopGO
 ```{r}
