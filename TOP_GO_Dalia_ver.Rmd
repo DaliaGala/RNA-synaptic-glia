@@ -20,6 +20,12 @@ mouse_mart96 <- useMart("ENSEMBL_MART_ENSEMBL", dataset = "mmusculus_gene_ensemb
 mouse_ens <- getBM(attributes = c("ensembl_gene_id", "external_gene_name", "gene_biotype"),
       mart = mouse_mart96)
 ```
+# Get background genes
+```{r}
+full_mouse_genes <- mouse_ens %>%
+  clean_names() %>%
+  pull(ensembl_gene_id)
+```
 # Load the summary table
 ```{r}
 summary_table <- read_csv("./Glial-summary-table.csv")
@@ -33,12 +39,12 @@ protrusion_enriched_translated <- filter(summary_table, RNA_in_protrusion == "12
 # Perform TopGO
 ```{r}
 ## Custom function
-source("./src/runTopGO.R")
+source("./runTopGO.R")
 
 runTopGO_dalia <- function(ontology, target_list){
   runTopGO(ontology = ontology,
-           species = "human",
-           backgroundGenes = full_human_genes,
+           species = "mouse",
+           backgroundGenes = full_mouse_genes,
            targetedGenes = target_list) %>%
     mutate(Ontology = ontology)
 }
@@ -49,11 +55,19 @@ ontologies <- c("BP", "MF", "CC")
 ```
 ## Perform TopGO
 ```{r}
-GO_with_neuro    <- map2_dfr(ontologies, list(with_neuro), runTopGO_dalia)
-GO_without_neuro <- map2_dfr(ontologies, list(without_neuro), runTopGO_dalia)
+all_protrusion_onto <- map2_dfr(ontologies, list(all_protrusion$gene_id), runTopGO_dalia)
+all_enriched_onto <- map2_dfr(ontologies, list(all_enriched$gene_id), runTopGO_dalia)
+all_translated_onto <- map2_dfr(ontologies, list(all_translated$gene_id), runTopGO_dalia)
+protrusion_enriched_onto <- map2_dfr(ontologies, list(protrusion_enriched$gene_id), runTopGO_dalia)
+protrusion_translated_onto <- map2_dfr(ontologies, list(protrusion_translated$gene_id), runTopGO_dalia)
+protrusion_enriched_translated_onto <- map2_dfr(ontologies, list(protrusion_enriched_translated$gene_id), runTopGO_dalia)
 ```
 ## Export
 ```{r}
-write_csv(GO_with_neuro, "./output/DSG/GO_with_neuro_20211110.csv")
-write_csv(GO_without_neuro, "./output/DSG/GO_without_neuro_20211110.csv")
+write_csv(all_protrusion_onto, "./output/all_protrusion_onto_14042022.csv")
+write_csv(all_enriched_onto, "./output/all_enriched_onto_14042022.csv")
+write_csv(all_translated_onto, "./output/all_translated_onto_14042022.csv")
+write_csv(protrusion_enriched_onto, "./output/protrusion_enriched_onto_14042022.csv")
+write_csv(protrusion_translated_onto, "./output/protrusion_translated_onto_14042022.csv")
+write_csv(protrusion_enriched_translated_onto, "./output/protrusion_enriched_translated_onto_14042022.csv")
 ```

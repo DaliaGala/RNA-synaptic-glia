@@ -1,0 +1,14 @@
+﻿GO.ID,Term,Annotated,Significant,Expected,classicFisher,bonferroni,bh,foldEnrichment,Ontology
+GO:0007017,microtubule-based process,770,48,15.48,3.70E-12,1.78E-08,1.66E-09,3.1,BP
+GO:0010564,regulation of cell cycle process,598,39,12.02,1.20E-10,5.77E-07,2.62E-08,3.24,BP
+GO:0005813,centrosome,517,32,10.48,2.50E-08,1.58E-05,4.26E-07,3.05,CC
+GO:0015629,actin cytoskeleton,494,31,10.01,3.10E-08,1.95E-05,5.01E-07,3.1,CC
+GO:0005874,microtubule,429,29,8.69,1.70E-08,1.07E-05,3.15E-07,3.34,CC
+GO:0006397,mRNA processing,453,29,9.11,4.70E-08,2.26E-04,3.71E-06,3.18,BP
+GO:0033044,regulation of chromosome organization,358,24,7.2,3.00E-07,0.0014436,1.78E-05,3.33,BP
+GO:0008380,RNA splicing,366,23,7.36,1.60E-06,0.0076992,7.70E-05,3.12,BP
+GO:0044445,cytosolic part,265,22,5.37,2.70E-08,1.70E-05,4.48E-07,4.1,CC
+GO:0005938,cell cortex,316,22,6.4,5.80E-07,3.65E-04,7.16E-06,3.44,CC
+GO:0005840,ribosome,227,20,4.6,4.30E-08,2.71E-05,6.61E-07,4.35,CC
+GO:0003729,mRNA binding,270,20,5.48,7.30E-07,6.05E-04,4.66E-05,3.65,MF
+GO:1901987,regulation of cell cycle phase transitio...,297,20,5.97,2.80E-06,0.0134736,1.27E-04,3.35,BP

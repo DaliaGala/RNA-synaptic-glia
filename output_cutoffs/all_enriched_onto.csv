@@ -1,0 +1,25 @@
+﻿GO.ID,Term,Annotated,Significant,Expected,classicFisher,bonferroni,bh,foldEnrichment,Ontology
+GO:0007017,microtubule-based process,770,54,17.11,7.90E-14,3.80E-10,3.17E-11,3.16,BP
+GO:0099513,polymeric cytoskeletal fiber,679,46,15.18,2.60E-11,1.64E-08,5.85E-10,3.03,CC
+GO:0015629,actin cytoskeleton,494,40,11.05,2.40E-12,1.51E-09,5.82E-11,3.62,CC
+GO:0010564,regulation of cell cycle process,598,40,13.29,6.60E-10,3.18E-06,7.06E-08,3.01,BP
+GO:0051493,regulation of cytoskeleton organization,548,37,12.18,2.30E-09,1.11E-05,2.01E-07,3.04,BP
+GO:0005874,microtubule,429,33,9.59,8.00E-10,5.04E-07,1.44E-08,3.44,CC
+GO:0003779,actin binding,429,32,9.64,3.40E-09,2.82E-06,2.56E-07,3.32,MF
+GO:0014069,postsynaptic density,397,27,8.88,3.50E-07,2.21E-04,4.08E-06,3.04,CC
+GO:0032279,asymmetric synapse,400,27,8.95,4.00E-07,2.52E-04,4.58E-06,3.02,CC
+GO:0031252,cell leading edge,387,26,8.65,7.30E-07,4.60E-04,7.79E-06,3.01,CC
+GO:0005938,cell cortex,316,25,7.07,5.50E-08,3.47E-05,7.53E-07,3.54,CC
+GO:0033044,regulation of chromosome organization,358,25,7.96,5.20E-07,0.00250224,2.07E-05,3.14,BP
+GO:0007018,microtubule-based movement,278,24,6.18,1.70E-08,8.18E-05,1.06E-06,3.88,BP
+GO:0015631,tubulin binding,339,24,7.61,8.20E-07,6.80E-04,4.25E-05,3.15,MF
+GO:1902903,regulation of supramolecular fiber organ...,351,24,7.8,1.30E-06,0.0062556,4.53E-05,3.08,BP
+GO:0044445,cytosolic part,265,23,5.93,3.40E-08,2.14E-05,4.87E-07,3.88,CC
+GO:0005840,ribosome,227,21,5.08,4.60E-08,2.90E-05,6.44E-07,4.13,CC
+GO:0003729,mRNA binding,270,21,6.06,8.90E-07,7.38E-04,4.34E-05,3.47,MF
+GO:1903829,positive regulation of cellular protein ...,302,21,6.71,4.50E-06,0.021654,1.32E-04,3.13,BP
+GO:0003774,motor activity,133,20,2.99,1.90E-11,1.58E-08,2.25E-09,6.69,MF
+GO:0010631,epithelial cell migration,285,20,6.33,6.60E-06,0.0317592,1.84E-04,3.16,BP
+GO:0090132,epithelium migration,287,20,6.38,7.40E-06,0.0356088,2.02E-04,3.13,BP
+GO:0090130,tissue migration,289,20,6.42,8.20E-06,0.0394584,2.17E-04,3.12,BP
+GO:1901653,cellular response to peptide,290,20,6.44,8.60E-06,0.0413832,2.25E-04,3.11,BP

@@ -6,8 +6,8 @@
 ### Environment 
 library(topGO)
 library(tidyverse)
-library(org.Dm.eg.db) # need to load appropriate species database
-library(org.Hs.eg.db)
+# need to load appropriate species database
+library(org.Mm.eg.db)
 
 
 ### Set runTopGO fuction 

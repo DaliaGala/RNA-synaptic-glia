@@ -20,8 +20,12 @@ library(ggplot2)
 #------------------
 # Import the table containing the enriched GO terms
 ```{r}
-#GO_all <- read.csv("with_neuro.csv",header=T,stringsAsFactors = T)
-GO_all <- read.csv("without_neuro.csv",header=T,stringsAsFactors = T)
+all_protrusion_onto <- read.csv("./output_cutoffs/all_protrusion_onto.csv",header=T,stringsAsFactors = T)
+all_enriched_onto <- read.csv("./output_cutoffs/all_enriched_onto.csv",header=T,stringsAsFactors = T)
+all_translated_onto <- read.csv("./output_cutoffs/all_translated_onto.csv",header=T,stringsAsFactors = T)
+protrusion_enriched_onto <- read.csv("./output_cutoffs/protrusion_enriched_onto.csv",header=T,stringsAsFactors = T)
+protrusion_translated_onto <- read.csv("./output_cutoffs/protrusion_translated_onto.csv",header=T,stringsAsFactors = T)
+protrusion_enriched_translated_onto <- read.csv("./output_cutoffs/protrusion_enriched_translated_onto.csv",header=T,stringsAsFactors = T)
 ```
 #Compare all the same GO
 ```{r}
@@ -33,11 +37,11 @@ ls.str(GO_all)
 ```
 # Transform the column 'Significant' into a numeric variable
 ```{r}
-GO_all$Significant <- as.numeric(GO_all$Significant)
+all_protrusion_onto$Significant <- as.numeric(all_protrusion_onto$Significant)
 ```
 # Replace all the "_" by a space in the column containing the GO terms
 ```{r}
-GO_all$Term <- chartr("_", " ", GO_all$Term)
+all_protrusion_onto$Term <- chartr("_", " ", all_protrusion_onto$Term)
 ```
 # Transform FDR values by -log10('FDR values')
 ```{r}
@@ -49,11 +53,11 @@ GO_all$Term <- chartr("_", " ", GO_all$Term)
 #GO_all %>% pull(Term) %>% length()
 
 
-ggplot(GO_all, aes(x = Term, y = foldEnrichment)) +
+ggplot(all_protrusion_onto, aes(x = Term, y = foldEnrichment)) +
   geom_hline(yintercept = 3.5, linetype="dashed", 
              color = "azure4", size=.5)+
-  geom_point(data=GO_all,aes(x=Term, y=foldEnrichment,size = Significant, colour = `bonferroni`), alpha=.7)+
-  scale_x_discrete(limits= GO_all$Term)+
+  geom_point(data=all_protrusion_onto,aes(x=Term, y=foldEnrichment,size = Significant, colour = `bonferroni`), alpha=.7)+
+  scale_x_discrete(limits= all_protrusion_onto$Term)+
   scale_color_gradient(low="dark green",high="dark red",limits=c(0, NA))+
   coord_flip()+
   theme_bw()+
@@ -71,6 +75,9 @@ ggplot(GO_all, aes(x = Term, y = foldEnrichment)) +
 ```
 #Save
 ```{r}
-ggsave("without_Neuro.png", plot = last_plot(), dpi=300, width = 8 )
+library(venn)
+listInput <- list(Protrusion_Enriched = names(protrusion_enriched_onto),
+                  Protrusion_Translated = names(protrusion_translated_onto))
+venn(listInput, ilab=TRUE, zcolor = "style")
 ```
 
