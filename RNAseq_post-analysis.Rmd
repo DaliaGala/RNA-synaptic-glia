@@ -1,0 +1,169 @@
+---
+title: "RNAseq_post-analysis"
+author: "Jeff Lee"
+date: '2022-05-03'
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+# GENE ONTOLOGY ENRICHMENT ANALYSIS
+
+## Get Brain Transcriptome
+
+ - ENCODE Mmus bulk RNA-seq brain adult male (https://www.encodeproject.org/files/ENCFF468CXD/) 
+
+```{r}
+library(tidyverse)
+
+## Read in ENCODE transcriptome quant tsv file
+encode_raw <- read_tsv("./RNAseq/external_data/ENCFF468CXD.tsv") %>%
+  filter(str_detect(gene_id, "ENS")) %>%
+  mutate(gene_id = str_replace(gene_id, "\\..*", ""))
+
+## How many genes have TPM > 1 ? - Using lower cutoff due to smaller presence of glia in the whole brain
+encode_raw %>% filter(TPM > 1) %>% nrow()
+
+## Get a vector of gene_id with TPM > 1
+Mmus_encode_brain_txome <- encode_raw %>%
+  filter(TPM > 1) %>% pull(gene_id)
+
+# * * * * * Add any glial transcripts that are not represented in ENCODE data
+
+## Which transcripts from our summary dataframe are not represented in the ENCODE data? (TPM > 10)
+avgTPM_wide <- readRDS("./RNAseq/quant_results/all-glia_avgTPM_wide.RDS")
+avgTPM_tidy <- avgTPM_wide %>%
+  pivot_longer(cols = 2:last_col(), names_to = "glia_types", values_to = "TPM")
+glial_txome <- avgTPM_tidy %>%
+  filter(TPM > 10) %>%
+  pull(gene_id) %>% 
+  unique()
+
+## How many of the genes intersect between brain txome and glial txome?
+intersect(Mmus_encode_brain_txome, glial_txome) %>% length() # ~2000 are missing in brain txome
+
+## Add the two together and take the unique gene_id sets
+Mmus_brain_glia_txome <- c(Mmus_encode_brain_txome, glial_txome) %>% unique()
+
+saveRDS(Mmus_brain_glia_txome, "./RNAseq/external_data/Mmus_brain_glia_txome.RDS")
+
+```
+
+## Run Gene Ontology analysis
+
+```{r}
+## source TopGO script
+source("./src/runTopGO.R")
+df_annotated <- readRDS("./RNAseq/summary_table/df_annotated.RDS")
+
+## Ontologies to test
+ontologies <- c("BP", "MF", "CC") %>% set_names()
+
+## Those present in protrusions
+set1_target <- df_annotated %>%
+  filter(RNA_in_protrusion >= 10) %>%
+  pull(gene_id)
+
+set1 <- map_dfr(ontologies, function(ontology){
+  runTopGO(ontology = ontology,
+           species = "mouse",
+           backgroundGenes = Mmus_brain_glia_txome,
+           targetedGenes = set1_target)
+}, .id = "ontology")
+
+x <- set1 %>%
+  filter(bonferroni < 0.05) %>%
+  filter(foldEnrichment > 2) %>%
+  filter(Significant > 10) %>%
+  arrange(bonferroni)
+
+## Those preferentially enriched in protrusions
+set2_target <- df_annotated %>%
+  filter(enriched_in_protrusion >= 3) %>%
+  pull(gene_id)
+
+set2 <- map_dfr(ontologies, function(ontology){
+  runTopGO(ontology = ontology,
+           species = "mouse",
+           backgroundGenes = Mmus_brain_glia_txome,
+           targetedGenes = set2_target)
+}, .id = "ontology")
+
+y <- set2 %>%
+  filter(bonferroni < 0.05) %>%
+  filter(foldEnrichment > 2) %>%
+  filter(Significant > 10) %>%
+  arrange(bonferroni)
+
+## Those preferentially translated in protrusions 
+set3_target <- df_annotated %>%
+  filter(enhanced_translation_in_protrusion >= 3) %>%
+  pull(gene_id)
+
+set3 <- map_dfr(ontologies, function(ontology){
+  runTopGO(ontology = ontology,
+           species = "mouse",
+           backgroundGenes = Mmus_brain_glia_txome,
+           targetedGenes = set3_target)
+}, .id = "ontology")
+
+z <- set3 %>%
+  filter(bonferroni < 0.05) %>%
+  filter(foldEnrichment > 2) %>%
+  filter(Significant > 10) %>%
+  arrange(bonferroni)
+
+## Those preferentially enriched & translated in protrusions 
+set4_target <- df_annotated %>%
+  filter(enriched_in_protrusion >= 3 & enhanced_translation_in_protrusion >= 3) %>%
+  pull(gene_id)
+
+set4 <- map_dfr(ontologies, function(ontology){
+  runTopGO(ontology = ontology,
+           species = "mouse",
+           backgroundGenes = Mmus_brain_glia_txome,
+           targetedGenes = set4_target)
+}, .id = "ontology")
+
+w <- set4 %>%
+  filter(bonferroni < 0.05) %>%
+  filter(foldEnrichment > 2) %>%
+  filter(Significant > 10) %>%
+  arrange(bonferroni)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
