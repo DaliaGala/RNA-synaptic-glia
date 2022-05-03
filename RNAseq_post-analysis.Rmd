@@ -54,78 +54,107 @@ saveRDS(Mmus_brain_glia_txome, "./RNAseq/external_data/Mmus_brain_glia_txome.RDS
 ```{r}
 ## source TopGO script
 source("./src/runTopGO.R")
+Mmus_brain_glia_txome <- readRDS("./RNAseq/external_data/Mmus_brain_glia_txome.RDS")
 df_annotated <- readRDS("./RNAseq/summary_table/df_annotated.RDS")
 
 ## Ontologies to test
 ontologies <- c("BP", "MF", "CC") %>% set_names()
+```
 
-## Those present in protrusions
-set1_target <- df_annotated %>%
-  filter(RNA_in_protrusion >= 10) %>%
+### Strict cutoffs 
+
+```{r}
+# * * * * *  Those present in protrusions
+
+## RNA_in_protrusion >= 12
+strict_set1_target <- df_annotated %>%
+  filter(RNA_in_protrusion >= 12) %>%
   pull(gene_id)
 
-set1 <- map_dfr(ontologies, function(ontology){
+## How many genes in this set? = 366
+strict_set1_target %>% length()
+
+## runTopGO
+strict_set1 <- map_dfr(ontologies, function(ontology){
   runTopGO(ontology = ontology,
            species = "mouse",
            backgroundGenes = Mmus_brain_glia_txome,
-           targetedGenes = set1_target)
+           targetedGenes = strict_set1_target)
 }, .id = "ontology")
 
-x <- set1 %>%
+strict_set1_filtered <- strict_set1 %>%
   filter(bonferroni < 0.05) %>%
   filter(foldEnrichment > 2) %>%
   filter(Significant > 10) %>%
   arrange(bonferroni)
 
-## Those preferentially enriched in protrusions
-set2_target <- df_annotated %>%
-  filter(enriched_in_protrusion >= 3) %>%
+# * * * * * Those preferentially enriched in protrusions
+
+## enriched_in_protrusion >= 4
+strict_set2_target <- df_annotated %>%
+  filter(enriched_in_protrusion >= 4) %>%
   pull(gene_id)
 
-set2 <- map_dfr(ontologies, function(ontology){
+## How many genes in this set? = 66
+strict_set2_target %>% length()
+
+## runTopGO
+strict_set2 <- map_dfr(ontologies, function(ontology){
   runTopGO(ontology = ontology,
            species = "mouse",
            backgroundGenes = Mmus_brain_glia_txome,
-           targetedGenes = set2_target)
+           targetedGenes = strict_set2_target)
 }, .id = "ontology")
 
-y <- set2 %>%
+strict_set2_filtered <- strict_set2 %>%
   filter(bonferroni < 0.05) %>%
   filter(foldEnrichment > 2) %>%
   filter(Significant > 10) %>%
   arrange(bonferroni)
 
-## Those preferentially translated in protrusions 
-set3_target <- df_annotated %>%
-  filter(enhanced_translation_in_protrusion >= 3) %>%
+# * * * * * Those translated in protrusions 
+
+## translation_in_protrusion >= 4
+strict_set3_target <- df_annotated %>%
+  filter(translation_in_protrusion >= 4) %>%
   pull(gene_id)
 
-set3 <- map_dfr(ontologies, function(ontology){
+## How many genes in this set? = 1599
+strict_set3_target %>% length()
+
+## runTopGO
+strict_set3 <- map_dfr(ontologies, function(ontology){
   runTopGO(ontology = ontology,
            species = "mouse",
            backgroundGenes = Mmus_brain_glia_txome,
-           targetedGenes = set3_target)
+           targetedGenes = strict_set3_target)
 }, .id = "ontology")
 
-z <- set3 %>%
+strict_set3_filtered <- strict_set3 %>%
   filter(bonferroni < 0.05) %>%
   filter(foldEnrichment > 2) %>%
   filter(Significant > 10) %>%
   arrange(bonferroni)
 
-## Those preferentially enriched & translated in protrusions 
-set4_target <- df_annotated %>%
-  filter(enriched_in_protrusion >= 3 & enhanced_translation_in_protrusion >= 3) %>%
+# * * * * * Those preferentially enriched & translated in protrusions 
+
+## enriched_in_protrusion >= 4 & translation_in_protrusion >= 4
+strict_set4_target <- df_annotated %>%
+  filter(enriched_in_protrusion >= 4 & translation_in_protrusion >= 4) %>%
   pull(gene_id)
 
-set4 <- map_dfr(ontologies, function(ontology){
+## How many genes in this set? = 31
+strict_set4_target %>% length()
+
+## runTopGO
+strict_set4 <- map_dfr(ontologies, function(ontology){
   runTopGO(ontology = ontology,
            species = "mouse",
            backgroundGenes = Mmus_brain_glia_txome,
-           targetedGenes = set4_target)
+           targetedGenes = strict_set4_target)
 }, .id = "ontology")
 
-w <- set4 %>%
+strict_set4_filtered <- strict_set4 %>%
   filter(bonferroni < 0.05) %>%
   filter(foldEnrichment > 2) %>%
   filter(Significant > 10) %>%
@@ -133,6 +162,155 @@ w <- set4 %>%
 
 ```
 
+### Lenient cutoffs
+
+```{r}
+# * * * * *  Those present in protrusions
+
+## RNA_in_protrusion >= 10
+lenient_set1_target <- df_annotated %>%
+  filter(RNA_in_protrusion >= 10) %>%
+  pull(gene_id)
+
+## How many genes in this set? = 2755
+lenient_set1_target %>% length()
+
+## runTopGO
+lenient_set1 <- map_dfr(ontologies, function(ontology){
+  runTopGO(ontology = ontology,
+           species = "mouse",
+           backgroundGenes = Mmus_brain_glia_txome,
+           targetedGenes = lenient_set1_target)
+}, .id = "ontology")
+
+lenient_set1_filtered <- lenient_set1 %>%
+  filter(bonferroni < 0.05) %>%
+  filter(foldEnrichment > 2) %>%
+  filter(Significant > 10) %>%
+  arrange(bonferroni)
+
+# * * * * * Those preferentially enriched in protrusions
+
+## enriched_in_protrusion >= 3
+lenient_set2_target <- df_annotated %>%
+  filter(enriched_in_protrusion >= 3) %>%
+  pull(gene_id)
+
+## How many genes in this set? = 491
+lenient_set2_target %>% length()
+
+## runTopGO
+lenient_set2 <- map_dfr(ontologies, function(ontology){
+  runTopGO(ontology = ontology,
+           species = "mouse",
+           backgroundGenes = Mmus_brain_glia_txome,
+           targetedGenes = lenient_set2_target)
+}, .id = "ontology")
+
+lenient_set2_filtered <- lenient_set2 %>%
+  filter(bonferroni < 0.05) %>%
+  filter(foldEnrichment > 2) %>%
+  filter(Significant > 10) %>%
+  arrange(bonferroni)
+
+# * * * * * Those translated in protrusions 
+
+## translation_in_protrusion >= 3
+lenient_set3_target <- df_annotated %>%
+  filter(translation_in_protrusion >= 3) %>%
+  pull(gene_id)
+
+## How many genes in this set? = 3656
+lenient_set3_target %>% length()
+
+## runTopGO
+lenient_set3 <- map_dfr(ontologies, function(ontology){
+  runTopGO(ontology = ontology,
+           species = "mouse",
+           backgroundGenes = Mmus_brain_glia_txome,
+           targetedGenes = lenient_set3_target)
+}, .id = "ontology")
+
+lenient_set3_filtered <- lenient_set3 %>%
+  filter(bonferroni < 0.05) %>%
+  filter(foldEnrichment > 2) %>%
+  filter(Significant > 10) %>%
+  arrange(bonferroni)
+
+# * * * * * Those preferentially enriched & translated in protrusions 
+
+## enriched_in_protrusion >= 3 & translation_in_protrusion >= 3
+lenient_set4_target <- df_annotated %>%
+  filter(enriched_in_protrusion >= 3 & translation_in_protrusion >= 3) %>%
+  pull(gene_id)
+
+## How many genes in this set? = 278
+lenient_set4_target %>% length()
+
+## runTopGO
+lenient_set4 <- map_dfr(ontologies, function(ontology){
+  runTopGO(ontology = ontology,
+           species = "mouse",
+           backgroundGenes = Mmus_brain_glia_txome,
+           targetedGenes = lenient_set4_target)
+}, .id = "ontology")
+
+lenient_set4_filtered <- lenient_set4 %>%
+  filter(bonferroni < 0.05) %>%
+  filter(foldEnrichment > 2) %>%
+  filter(Significant > 10) %>%
+  arrange(bonferroni)
+
+# * * * * * Those preferentially translated in protrusions 
+
+## enhanced_translation_in_protrusion >= 3
+lenient_set5_target <- df_annotated %>%
+  filter(enhanced_translation_in_protrusion >= 3) %>%
+  pull(gene_id)
+
+## How many genes in this set? = 210
+lenient_set5_target %>% length()
+
+## runTopGO
+lenient_set5 <- map_dfr(ontologies, function(ontology){
+  runTopGO(ontology = ontology,
+           species = "mouse",
+           backgroundGenes = Mmus_brain_glia_txome,
+           targetedGenes = lenient_set5_target)
+}, .id = "ontology")
+
+lenient_set5_filtered <- lenient_set5 %>%
+  filter(bonferroni < 0.05) %>%
+  filter(foldEnrichment > 2) %>%
+  filter(Significant > 10) %>%
+  arrange(bonferroni)
+
+# * * * * * Those preferentially translated in protrusions & enriched 
+
+## enhanced_translation_in_protrusion >= 3 & enriched_in_protrusion >= 3
+lenient_set6_target <- df_annotated %>%
+  filter(enhanced_translation_in_protrusion >= 3 & enriched_in_protrusion >= 3) %>%
+  pull(gene_id)
+
+## How many genes in this set? = 26
+lenient_set6_target %>% length()
+
+## runTopGO
+lenient_set6 <- map_dfr(ontologies, function(ontology){
+  runTopGO(ontology = ontology,
+           species = "mouse",
+           backgroundGenes = Mmus_brain_glia_txome,
+           targetedGenes = lenient_set6_target)
+}, .id = "ontology")
+
+lenient_set6_filtered <- lenient_set6 %>%
+  filter(bonferroni < 0.05) %>%
+  filter(foldEnrichment > 2) %>%
+  filter(Significant > 10) %>%
+  arrange(bonferroni)
+
+
+```
 
 
 
