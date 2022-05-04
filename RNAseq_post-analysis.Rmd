@@ -340,7 +340,7 @@ lenient_set1 %>%
   mutate(plot_FDR = -log10(bonferroni)) %>%
   mutate(ontology = fct_relevel(ontology, ontology_order)) %>%
   ggplot(aes(x = reorder(Term, plot_FDR), y = plot_FDR)) +
-  geom_segment(aes(xend = reorder(Term, plot_FDR), y = 0, yend = plot_FDR)) +
+  geom_segment(aes(xend = reorder(Term, plot_FDR), y = 0, yend = plot_FDR), colour = "gray70") +
   geom_point(aes(colour = ontology), size = 4) +
   geom_label(aes(y = plot_FDR + 2, label = Significant), cex = 2) + 
   scale_colour_manual(values = ontology_colours) +
@@ -362,7 +362,7 @@ lenient_set2 %>%
   mutate(plot_FDR = -log10(bonferroni)) %>%
   mutate(ontology = fct_relevel(ontology, ontology_order)) %>%
   ggplot(aes(x = reorder(Term, plot_FDR), y = plot_FDR)) +
-  geom_segment(aes(xend = reorder(Term, plot_FDR), y = 0, yend = plot_FDR)) +
+  geom_segment(aes(xend = reorder(Term, plot_FDR), y = 0, yend = plot_FDR), colour = "gray70") +
   geom_point(aes(colour = ontology), size = 4) +
   geom_label(aes(y = plot_FDR + 1, label = Significant), cex = 2) + 
   scale_colour_manual(values = ontology_colours) +
@@ -384,7 +384,7 @@ lenient_set5 %>%
   mutate(plot_FDR = -log10(bonferroni)) %>%
   mutate(ontology = fct_relevel(ontology, ontology_order)) %>%
   ggplot(aes(x = reorder(Term, plot_FDR), y = plot_FDR)) +
-  geom_segment(aes(xend = reorder(Term, plot_FDR), y = 0, yend = plot_FDR)) +
+  geom_segment(aes(xend = reorder(Term, plot_FDR), y = 0, yend = plot_FDR), colour = "gray70") +
   geom_point(aes(colour = ontology), size = 4) +
   geom_label(aes(y = plot_FDR + 0.5, label = Significant), cex = 2) + 
   scale_colour_manual(values = ontology_colours) +
@@ -402,11 +402,93 @@ lenient_set5 %>%
 ggsave("./RNAseq/plots/GO_patchwork.pdf", 
        height = 10, width = 16)
 
+# save.image("./RNAseq/post_analysis_RData/GO_analysis.RData")
+
 ```
 
 
+# PCA ANALYSIS
+
+```{r}
+## Environment
+library(tidyverse)
+library(biomaRt)
+library(DESeq2)
+
+```
+
+## Get count matrix
+
+```{r}
+## Get count matrix of Mmus kallisto datasets
+Mmus_kallisto <- readRDS("./RNAseq/quant_results/Mmus_kallisto_tximport_gni.RDS")
+Mmus_counts <- Mmus_kallisto$counts %>%
+  as.data.frame() %>%
+  rownames_to_column(var = "gene_id") %>%
+  as_tibble() %>%
+  mutate(gene_id = str_replace(gene_id, "\\..*", "")) %>%
+  dplyr::rename_with(.fn = ~ str_replace(.x, "Mmus_", ""),
+                     .cols = starts_with("Mmus_"))
+
+## Get count matrix of Rnor kallisto datasets
+Rnor_kallisto <- readRDS("./RNAseq/quant_results/Rnor_kallisto_tximport_gni.RDS")
+Rnor_counts <- Rnor_kallisto$counts %>%
+  as.data.frame() %>%
+  rownames_to_column(var = "gene_id") %>%
+  as_tibble() %>%
+  mutate(gene_id = str_replace(gene_id, "\\..*", "")) 
+
+## Convert Rnor genes to mouse genes
+rat_mart98 <- useMart("ENSEMBL_MART_ENSEMBL", dataset = "rnorvegicus_gene_ensembl", 
+                   host = "https://sep2019.archive.ensembl.org")
+id_dictionary <- getBM(attributes = c("ensembl_gene_id", "mmusculus_homolog_ensembl_gene", "mmusculus_homolog_orthology_type"),
+      mart = rat_mart98,
+      filters = "ensembl_gene_id",
+      values = Rnor_counts$gene_id) %>%
+  dplyr::select(-mmusculus_homolog_orthology_type)
+
+Rnor_counts_converted <- Rnor_counts %>%
+  left_join(id_dictionary, by = c("gene_id" = "ensembl_gene_id")) %>%
+  filter(str_detect(mmusculus_homolog_ensembl_gene, "ENS")) %>%
+  group_by(mmusculus_homolog_ensembl_gene) %>%
+  dplyr::select(-gene_id) %>%
+  dplyr::select("gene_id" = mmusculus_homolog_ensembl_gene, everything()) %>%
+  pivot_longer(cols = 2:last_col(), names_to = "library", values_to = "count") %>%
+  group_by(gene_id, library) %>%
+  summarise(counts = sum(count)) %>%
+  ungroup() %>%
+  pivot_wider(id_cols = gene_id, values_from = counts, names_from = library) %>%
+  dplyr::rename_with(.fn = ~ str_replace(.x, "Rnor_", ""),
+                     .cols = starts_with("Rnor_"))
+
+## Combine Mmus counts with the converted Rnor counts and add microglia data
+counts_all <- left_join(Mmus_counts, Rnor_counts_converted, by = "gene_id") %>%
+  mutate(
+    across(starts_with("Oligodendrocytes"), ~replace_na(.x, 0))
+  ) %>%
+  column_to_rownames(var = "gene_id") %>%
+  as.matrix()
+
+```
 
 
+## Perform PCA with DESeq2
+
+```{r}
+## Create dds object
+counts_meta <- tibble(rownames = colnames(counts_all)) %>%
+  mutate(compartment = case_when(
+    str_detect(rownames, "protrusion") ~ "protrusion",
+    str_detect(rownames, "soma") ~ "soma"
+  )) %>%
+  mutate(celltype = str_extract(rownames, "[^_]+")) %>%
+  mutate(librarytype = case_when(
+    str_detect(rownames, "txn") ~ "transcriptome",
+    str_detect(rownames, "trap") ~ "translatome",
+  )) %>%
+  column_to_rownames(var = "rownames")
+
+```
 
 
 
