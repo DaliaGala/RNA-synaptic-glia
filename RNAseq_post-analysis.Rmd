@@ -414,6 +414,8 @@ ggsave("./RNAseq/plots/GO_patchwork.pdf",
 library(tidyverse)
 library(biomaRt)
 library(DESeq2)
+library(pheatmap)
+library(RColorBrewer)
 
 ```
 
@@ -462,20 +464,26 @@ Rnor_counts_converted <- Rnor_counts %>%
                      .cols = starts_with("Rnor_"))
 
 ## Combine Mmus counts with the converted Rnor counts and add microglia data
-counts_all <- left_join(Mmus_counts, Rnor_counts_converted, by = "gene_id") %>%
+vasek_counts <- readRDS("./RNAseq/Rawdata_unavailable/Vasek2021/Vasek2021_counts_dataframe_names_converted.RDS") %>%
+  dplyr::select(gene_id, contains("induced")) %>%
+  dplyr::rename_with(.cols = contains("induced"),
+                     .fn = ~ str_replace(.x, "_induced", ""))
+
+counts_all <- full_join(Mmus_counts, Rnor_counts_converted, by = "gene_id") %>%
+  full_join(vasek_counts, by = "gene_id") %>%
   mutate(
-    across(starts_with("Oligodendrocytes"), ~replace_na(.x, 0))
+    across(2:last_col(), ~replace_na(.x, 0))
   ) %>%
-  column_to_rownames(var = "gene_id") %>%
-  as.matrix()
+  column_to_rownames(var = "gene_id")
 
 ```
 
 
 ## Perform PCA with DESeq2
 
+### Both transcriptome and translatome
+
 ```{r}
-## Create dds object
 counts_meta <- tibble(rownames = colnames(counts_all)) %>%
   mutate(compartment = case_when(
     str_detect(rownames, "protrusion") ~ "protrusion",
@@ -488,10 +496,60 @@ counts_meta <- tibble(rownames = colnames(counts_all)) %>%
   )) %>%
   column_to_rownames(var = "rownames")
 
+dds <- DESeqDataSetFromMatrix(countData = round(as.matrix(counts_all)),
+                              colData = counts_meta,
+                              design = ~ compartment + celltype + librarytype)
+
+vsd <- vst(dds, blind=FALSE)
+
+sampleDists <- dist(t(assay(vsd)))
+
+sampleDistMatrix <- as.matrix(sampleDists)
+rownames(sampleDistMatrix) <- paste(vsd$condition, vsd$type, sep="-")
+colors <- colorRampPalette( rev(brewer.pal(9, "Blues")) )(255)
+pheatmap(sampleDistMatrix,
+         clustering_distance_rows=sampleDists,
+         clustering_distance_cols=sampleDists,
+         col=colors)
+
+plotPCA(vsd, intgroup = c("celltype", "librarytype", "compartment"), ntop = 1000)
+
 ```
 
+### Separate transcriptome and translatome PCA
 
+```{r}
+## Helper function to get variance stabilised data
+getVSD <- function(x){
+  counts <- counts_all %>%
+    dplyr::select(contains(x))
+  meta <- tibble(rownames = colnames(counts)) %>%
+    mutate(compartment = case_when(
+      str_detect(rownames, "protrusion") ~ "protrusion",
+      str_detect(rownames, "soma") ~ "soma"
+    )) %>%
+    mutate(celltype = str_extract(rownames, "[^_]+")) %>%
+    column_to_rownames(var = "rownames")
+  dds <- DESeqDataSetFromMatrix(countData = round(as.matrix(counts)),
+                                colData = meta,
+                                design = ~ celltype + compartment)
+  vsd <- vst(dds, blind = FALSE)
+  return(vsd)
+}
 
+## Transcriptome
+vsd_txn <- getVSD("txn")
+plotPCA(vsd_txn, intgroup = c("celltype", "compartment"), ntop = 1000)
+
+## Translatome
+vsd_trap <- getVSD("trap")
+plotPCA(vsd_trap, intgroup = c("celltype", "compartment"), ntop = 1000)
+
+```
+
+```{r}
+save.image("./RNAseq/post_analysis_RData/PCA_analysis.RData")
+```
 
 
 
