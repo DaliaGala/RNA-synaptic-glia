@@ -313,6 +313,97 @@ lenient_set6_filtered <- lenient_set6 %>%
 ```
 
 
+## Plot Gene Ontology Summary
+
+```{r}
+## Environment
+library(tidyverse)
+library(hrbrthemes)
+library(patchwork)
+
+```
+
+
+```{r}
+## Plot helpers
+ontology_order <- c("BP", "MF", "CC")
+ontology_colours <- c("#d1ab75", "#8fd175", "#d175b8")
+
+## Plots
+lenient_set1 %>%
+  filter(bonferroni < 0.05) %>%
+  filter(foldEnrichment > 2) %>%
+  filter(case_when(
+    ontology == "CC" ~ Significant > 200,
+    TRUE ~ Significant > 150
+  )) %>%
+  mutate(plot_FDR = -log10(bonferroni)) %>%
+  mutate(ontology = fct_relevel(ontology, ontology_order)) %>%
+  ggplot(aes(x = reorder(Term, plot_FDR), y = plot_FDR)) +
+  geom_segment(aes(xend = reorder(Term, plot_FDR), y = 0, yend = plot_FDR)) +
+  geom_point(aes(colour = ontology), size = 4) +
+  geom_label(aes(y = plot_FDR + 2, label = Significant), cex = 2) + 
+  scale_colour_manual(values = ontology_colours) +
+  labs(title = "RNA present in glial protrusions (n = 2,755)",
+       y = "-log10 Bonferroni p-value",
+       colour = "Gene Ontology") + 
+  coord_flip() +
+  theme_classic() + 
+  theme(axis.title.y = element_blank(),
+        legend.position = "right") -> go_plot1
+
+lenient_set2 %>%
+  filter(bonferroni < 0.05) %>%
+  filter(foldEnrichment > 2) %>%
+  filter(case_when(
+    ontology == "CC" ~ Significant > 35,
+    TRUE ~ Significant > 25
+  )) %>%
+  mutate(plot_FDR = -log10(bonferroni)) %>%
+  mutate(ontology = fct_relevel(ontology, ontology_order)) %>%
+  ggplot(aes(x = reorder(Term, plot_FDR), y = plot_FDR)) +
+  geom_segment(aes(xend = reorder(Term, plot_FDR), y = 0, yend = plot_FDR)) +
+  geom_point(aes(colour = ontology), size = 4) +
+  geom_label(aes(y = plot_FDR + 1, label = Significant), cex = 2) + 
+  scale_colour_manual(values = ontology_colours) +
+  labs(title = "RNA enriched in glial protrusions (n = 491)",
+       y = "-log10 Bonferroni p-value",
+       colour = "Gene Ontology") + 
+  coord_flip() +
+  theme_classic() + 
+  theme(axis.title.y = element_blank(),
+        legend.position = "right") -> go_plot2
+
+lenient_set5 %>%
+  filter(bonferroni < 0.05) %>%
+  filter(foldEnrichment > 1.75) %>%
+  filter(case_when(
+    ontology == "CC" ~ Significant > 10,
+    TRUE ~ Significant > 10
+  )) %>%
+  mutate(plot_FDR = -log10(bonferroni)) %>%
+  mutate(ontology = fct_relevel(ontology, ontology_order)) %>%
+  ggplot(aes(x = reorder(Term, plot_FDR), y = plot_FDR)) +
+  geom_segment(aes(xend = reorder(Term, plot_FDR), y = 0, yend = plot_FDR)) +
+  geom_point(aes(colour = ontology), size = 4) +
+  geom_label(aes(y = plot_FDR + 0.5, label = Significant), cex = 2) + 
+  scale_colour_manual(values = ontology_colours) +
+  labs(title = "RNA preferentially translated in glial protrusions (n = 210)",
+       y = "-log10 Bonferroni p-value",
+       colour = "Gene Ontology") + 
+  coord_flip() +
+  theme_classic() + 
+  theme(axis.title.y = element_blank(),
+        legend.position = "right") -> go_plot3
+
+## Patchwork
+(go_plot1 + go_plot2) / (plot_spacer() + go_plot3) + plot_layout(guides = "collect")
+
+ggsave("./RNAseq/plots/GO_patchwork.pdf", 
+       height = 10, width = 16)
+
+```
+
 
 
 
