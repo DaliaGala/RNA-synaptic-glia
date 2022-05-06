@@ -588,7 +588,70 @@ ggsave("./RNAseq/plots/PCA_Astrocytes_trap.pdf",
 
 ```
 
+# SFARI OVERLAP
 
+```{r}
+
+```
+
+
+# CHEKULAEVA OVERLAP
+
+```{r}
+library(tidyverse)
+library(pathwork)
+library(readxl)
+library(janitor)
+library(ggVennDiagram)
+
+```
+
+```{r}
+## Get glial genes
+df_annotated <- readRDS("./RNAseq/summary_table/df_annotated.RDS")
+
+glia_protrusion_enriched_genes <- df_annotated %>%
+  filter(enriched_in_protrusion >= 3) 
+glia_protrusion_enhanced_translation <- df_annotated %>%
+  filter(enhanced_translation_in_protrusion >= 3)
+
+## Get Chekulaeva neuronal data 
+neurite_enriched <- read_excel("./RNAseq/external_data/Supplementary online tables_neurite-enriched.xlsx",
+                           skip = 1) %>%
+  clean_names()
+
+neurite_top <- neurite_enriched %>%
+  filter(datasets_with_significant_neurite_enrichment_p_0_1 >= 6)
+  # slice_max(datasets_with_significant_neurite_enrichment_p_0_1, n = 500)
+
+neurite_translation <- neurite_enriched %>%
+  filter(studies_with_neurite_ribosome_association >= 2)
+
+# * * * * * Glial protrusion enriched RNA
+
+enriched_RNA_glia_neurite_id <- intersect(glia_protrusion_enriched_genes$gene_id, neurite_top$gene_id)
+
+enriched_RNA_venn_df <- list(Glia_protrusion_over_3datasets = glia_protrusion_enriched_genes$gene_id, 
+                             Neurite_enrichement_over_6datasets = neurite_top$gene_id)
+
+ggVennDiagram(enriched_RNA_venn_df)
+
+enriched_RNA_glia_neurite <- df_annotated %>%
+  filter(gene_id %in% enriched_RNA_glia_neurite_id)
+
+# * * * * * Glial protrusion enhanced translation
+
+enhanced_translation_glia_neurite_id <- intersect(glia_protrusion_enhanced_translation$gene_id, neurite_translation$gene_id)
+
+enhanced_translation_venn_df <- list(Glia_translation_over_3datasets = glia_protrusion_enhanced_translation$gene_id, 
+                                     Neurite_translation_over_2datasets = neurite_translation$gene_id)
+
+ggVennDiagram(enhanced_translation_venn_df)
+
+enhanced_translation_glia_neurite <- df_annotated %>%
+  filter(gene_id %in% enhanced_translation_glia_neurite_id)
+
+```
 
 
 
