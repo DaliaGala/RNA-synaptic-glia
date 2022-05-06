@@ -637,7 +637,10 @@ enriched_RNA_venn_df <- list(Glia_protrusion_over_3datasets = glia_protrusion_en
 ggVennDiagram(enriched_RNA_venn_df)
 
 enriched_RNA_glia_neurite <- df_annotated %>%
-  filter(gene_id %in% enriched_RNA_glia_neurite_id)
+  filter(gene_id %in% enriched_RNA_glia_neurite_id) %>%
+  dplyr::select(gene_id, gene_symbol, description)
+
+write_csv(enriched_RNA_glia_neurite, "./RNAseq/post_analysis_RData/enriched_RNA_glia_neurite.csv")
 
 # * * * * * Glial protrusion enhanced translation
 
@@ -649,7 +652,10 @@ enhanced_translation_venn_df <- list(Glia_translation_over_3datasets = glia_prot
 ggVennDiagram(enhanced_translation_venn_df)
 
 enhanced_translation_glia_neurite <- df_annotated %>%
-  filter(gene_id %in% enhanced_translation_glia_neurite_id)
+  filter(gene_id %in% enhanced_translation_glia_neurite_id) %>%
+  dplyr::select(gene_id, gene_symbol, description)
+
+write_csv(enhanced_translation_glia_neurite, "./RNAseq/post_analysis_RData/enhanced_translation_glia_neurite.csv")
 
 ```
 
