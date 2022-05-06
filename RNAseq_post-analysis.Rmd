@@ -416,6 +416,7 @@ library(biomaRt)
 library(DESeq2)
 library(pheatmap)
 library(RColorBrewer)
+library(hrbrthemes)
 
 ```
 
@@ -522,7 +523,7 @@ plotPCA(vsd, intgroup = c("celltype", "librarytype", "compartment"), ntop = 1000
 ## Helper function to get variance stabilised data
 getVSD <- function(x){
   counts <- counts_all %>%
-    dplyr::select(contains(x))
+    dplyr::select(matches(x))
   meta <- tibble(rownames = colnames(counts)) %>%
     mutate(compartment = case_when(
       str_detect(rownames, "protrusion") ~ "protrusion",
@@ -545,11 +546,49 @@ plotPCA(vsd_txn, intgroup = c("celltype", "compartment"), ntop = 1000)
 vsd_trap <- getVSD("trap")
 plotPCA(vsd_trap, intgroup = c("celltype", "compartment"), ntop = 1000)
 
+## Translatome with Astrocytes only
+counts <- counts_all %>%
+  dplyr::select(contains("Astrocytes") & contains("trap"))
+meta <- tibble(rownames = colnames(counts)) %>%
+  mutate(compartment = case_when(
+    str_detect(rownames, "protrusion") ~ "protrusion",
+    str_detect(rownames, "soma") ~ "soma"
+  )) %>%
+  mutate(celltype = str_extract(rownames, "[^_]+")) %>%
+  column_to_rownames(var = "rownames")
+dds <- DESeqDataSetFromMatrix(countData = round(as.matrix(counts)),
+                              colData = meta,
+                              design = ~ celltype + compartment)
+vsd_astrocyte_trap <- vst(dds, blind = FALSE)
+plotPCA(vsd_astrocyte_trap, intgroup = c("celltype", "compartment"), ntop = 50000)
+plotPCA(vsd_astrocyte_trap, intgroup = c("celltype", "compartment"), ntop = 50000, 
+        returnData = TRUE) -> PCA_df
+
+## Make a pretty PCA plot
+PCA_df %>%
+  mutate(compartment = case_when(
+    compartment == "protrusion" ~ "Protrusion",
+    compartment == "soma" ~ "Soma"
+  )) %>%
+  ggplot(aes(x = PC1, y = PC2, colour = celltype, alpha = compartment)) +
+  geom_point(size = 4, stroke = 0) +
+  scale_alpha_manual(values = c(0.9, 0.4)) +
+  scale_colour_ipsum() + 
+  labs(title = "Principal component analysis",
+       subtitle = "Astrocyte TRAP-seq libraries",
+       x = "PC1: 31% Variance",
+       y = "PC2: 23% Variance",
+       colour = "Cell type",
+       alpha = "Compartment") +
+  theme_classic()
+
+ggsave("./RNAseq/plots/PCA_Astrocytes_trap.pdf", 
+       width = 6,
+       height = 5)
+
 ```
 
-```{r}
-save.image("./RNAseq/post_analysis_RData/PCA_analysis.RData")
-```
+
 
 
 
