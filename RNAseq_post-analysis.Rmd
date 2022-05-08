@@ -641,16 +641,28 @@ enhanced_translation_in_glial_protrusions_hsap_conversion <- getBM(attributes = 
 ## Enriched RNA in glial protrusions
 enriched_RNA_in_glial_protrusions_hsap_sfari_df <- list(
   SFARI = sfari_raw$ensembl_id, 
-  Enriched_RNA_in_glial_protrusions = enriched_RNA_in_glial_protrusions_hsap_conversion$hsapiens_homolog_ensembl_gene)
+  `Enriched RNA in glial protrusions` = enriched_RNA_in_glial_protrusions_hsap_conversion$hsapiens_homolog_ensembl_gene)
 
-ggVennDiagram(enriched_RNA_in_glial_protrusions_hsap_sfari_df)
+ggVennDiagram(enriched_RNA_in_glial_protrusions_hsap_sfari_df) +
+  scale_colour_manual(values = c("white", "white")) + 
+  scale_fill_viridis_c(direction = -1) +
+  theme_void(base_size = 8)
+
+ggsave("./RNAseq/plots/Venn_SFARI_enriched_RNA.pdf", 
+       width = 6, height = 5)
 
 ## Enhanced translation in glial protrusions
 enhanced_translation_in_glial_protrusions_hsap_sfari_df <- list(
   SFARI = sfari_raw$ensembl_id, 
-  Enhanced_translation_in_glial_protrusions = enhanced_translation_in_glial_protrusions_hsap_conversion$hsapiens_homolog_ensembl_gene)
+  `Enhanced translation in glial protrusions` = enhanced_translation_in_glial_protrusions_hsap_conversion$hsapiens_homolog_ensembl_gene)
 
-ggVennDiagram(enhanced_translation_in_glial_protrusions_hsap_sfari_df)
+ggVennDiagram(enhanced_translation_in_glial_protrusions_hsap_sfari_df) +
+  scale_colour_manual(values = c("white", "white")) + 
+  scale_fill_viridis_c(direction = -1) +
+  theme_void(base_size = 8)
+
+ggsave("./RNAseq/plots/Venn_SFARI_enhanced_translation.pdf", 
+       width = 6, height = 5)
 
 ## Summary dataframe 
 sfari_summary_with_glial_data <- sfari_raw %>%
