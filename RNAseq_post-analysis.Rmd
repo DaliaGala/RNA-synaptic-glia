@@ -594,6 +594,7 @@ ggsave("./RNAseq/plots/PCA_Astrocytes_trap.pdf",
 library(tidyverse)
 library(janitor)
 library(biomaRt)
+library(patchwork)
 ```
 
 ## Prepare Gene Lists
@@ -640,29 +641,35 @@ enhanced_translation_in_glial_protrusions_hsap_conversion <- getBM(attributes = 
 ```{r}
 ## Enriched RNA in glial protrusions
 enriched_RNA_in_glial_protrusions_hsap_sfari_df <- list(
-  SFARI = sfari_raw$ensembl_id, 
-  `Enriched RNA in glial protrusions` = enriched_RNA_in_glial_protrusions_hsap_conversion$hsapiens_homolog_ensembl_gene)
+  `SFARI genes` = sfari_raw$ensembl_id, 
+  `Glial protrusion enriched RNA` = enriched_RNA_in_glial_protrusions_hsap_conversion$hsapiens_homolog_ensembl_gene)
 
 ggVennDiagram(enriched_RNA_in_glial_protrusions_hsap_sfari_df) +
   scale_colour_manual(values = c("white", "white")) + 
-  scale_fill_viridis_c(direction = -1) +
-  theme_void(base_size = 8)
+  scale_fill_viridis_c(direction = -1, alpha = 0.9) +
+  labs(fill = "") +
+  theme_void(base_size = 8) -> venn_C
 
-ggsave("./RNAseq/plots/Venn_SFARI_enriched_RNA.pdf", 
-       width = 6, height = 5)
+venn_C
+
+# ggsave("./RNAseq/plots/Venn_SFARI_enriched_RNA.pdf", 
+#        width = 6, height = 5)
 
 ## Enhanced translation in glial protrusions
 enhanced_translation_in_glial_protrusions_hsap_sfari_df <- list(
-  SFARI = sfari_raw$ensembl_id, 
-  `Enhanced translation in glial protrusions` = enhanced_translation_in_glial_protrusions_hsap_conversion$hsapiens_homolog_ensembl_gene)
+  `SFARI genes` = sfari_raw$ensembl_id, 
+  `Glial protrusion enhanced translation` = enhanced_translation_in_glial_protrusions_hsap_conversion$hsapiens_homolog_ensembl_gene)
 
 ggVennDiagram(enhanced_translation_in_glial_protrusions_hsap_sfari_df) +
   scale_colour_manual(values = c("white", "white")) + 
-  scale_fill_viridis_c(direction = -1) +
-  theme_void(base_size = 8)
+  scale_fill_viridis_c(direction = -1, alpha = 0.9) +
+  labs(fill = "") +
+  theme_void(base_size = 8) -> venn_D
 
-ggsave("./RNAseq/plots/Venn_SFARI_enhanced_translation.pdf", 
-       width = 6, height = 5)
+venn_D
+
+# ggsave("./RNAseq/plots/Venn_SFARI_enhanced_translation.pdf", 
+#        width = 6, height = 5)
 
 ## Summary dataframe 
 sfari_summary_with_glial_data <- sfari_raw %>%
@@ -678,6 +685,50 @@ sfari_summary_with_glial_data <- sfari_raw %>%
   ))
 
 # write_csv(sfari_summary_with_glial_data, "./RNAseq/post_analysis_RData/sfari_summary_with_glial_data.csv")
+
+```
+
+## Try Gene ontology analysis on SFARI overlaps
+
+- Not sure what would be the best background since SFARI genes are not probably limited to CNS transcriptome ..
+- Try full human genes?
+
+```{r}
+## source TopGO script
+source("./src/runTopGO.R")
+library(org.Hs.eg.db)
+full_human_genes <- read_tsv("./RNAseq/ensembl_full_hsap_gene_list.txt")
+
+## Ontologies to test
+ontologies <- c("BP", "MF", "CC") %>% set_names()
+
+## Enriched RNA in glial protrusions + SFARI (n = 51)
+enriched_RNA_glia_SFARI_id <- sfari_summary_with_glial_data %>%
+  filter(Enriched_RNA_in_glial_protrusions == TRUE) %>%
+  pull(ensembl_id)
+
+GO_enriched_RNA_glia_SFARI <- map_dfr(ontologies, function(ontology){
+  runTopGO(ontology = ontology,
+           species = "human",
+           backgroundGenes = full_human_genes$ensembl_gene_id,
+           targetedGenes = enriched_RNA_glia_SFARI_id)
+}, .id = "ontology")
+
+# write_csv(GO_enriched_RNA_glia_SFARI, "./RNAseq/post_analysis_RData/GO_enriched_RNA_glia_SFARI.csv")
+
+## Enhanced translation in glial protrusions + SFARI (n = 30)
+enhanced_translation_glia_SFARI_id <- sfari_summary_with_glial_data %>%
+  filter(Enhanced_translation_in_glial_protrusions == TRUE) %>%
+  pull(ensembl_id)
+
+GO_enhanced_translation_glia_SFARI <- map_dfr(ontologies, function(ontology){
+  runTopGO(ontology = ontology,
+           species = "human",
+           backgroundGenes = full_human_genes$ensembl_gene_id,
+           targetedGenes = enhanced_translation_glia_SFARI_id)
+}, .id = "ontology")
+
+# write_csv(GO_enhanced_translation_glia_SFARI, "./RNAseq/post_analysis_RData/GO_enhanced_translation_glia_SFARI.csv")
 
 ```
 
@@ -720,10 +771,16 @@ neurite_translation <- neurite_enriched %>%
 
 enriched_RNA_glia_neurite_id <- intersect(glia_protrusion_enriched_genes$gene_id, neurite_top$gene_id)
 
-enriched_RNA_venn_df <- list(Glia_protrusion_over_3datasets = glia_protrusion_enriched_genes$gene_id, 
-                             Neurite_enrichement_over_6datasets = neurite_top$gene_id)
+enriched_RNA_venn_df <- list(`Neurite enriched RNA` = neurite_top$gene_id, 
+                             `Glial protrusion enriched RNA` = glia_protrusion_enriched_genes$gene_id)
 
-ggVennDiagram(enriched_RNA_venn_df)
+ggVennDiagram(enriched_RNA_venn_df) + 
+  scale_colour_manual(values = c("white", "white")) + 
+  scale_fill_viridis_c(direction = -1, option = "plasma", alpha = 0.8) +
+  labs(fill = "") +
+  theme_void(base_size = 8) -> venn_A
+
+venn_A
 
 enriched_RNA_glia_neurite <- df_annotated %>%
   filter(gene_id %in% enriched_RNA_glia_neurite_id) %>%
@@ -735,10 +792,16 @@ enriched_RNA_glia_neurite <- df_annotated %>%
 
 enhanced_translation_glia_neurite_id <- intersect(glia_protrusion_enhanced_translation$gene_id, neurite_translation$gene_id)
 
-enhanced_translation_venn_df <- list(Glia_translation_over_3datasets = glia_protrusion_enhanced_translation$gene_id, 
-                                     Neurite_translation_over_2datasets = neurite_translation$gene_id)
+enhanced_translation_venn_df <- list(`Neurite enhanced translation` = neurite_translation$gene_id,
+                                     `Glial protrusion enhanced translation` = glia_protrusion_enhanced_translation$gene_id)
 
-ggVennDiagram(enhanced_translation_venn_df)
+ggVennDiagram(enhanced_translation_venn_df) +
+  scale_colour_manual(values = c("white", "white")) + 
+  scale_fill_viridis_c(direction = -1, option = "plasma", alpha = 0.8) +
+  labs(fill = "") +
+  theme_void(base_size = 8) -> venn_B
+
+venn_B
 
 enhanced_translation_glia_neurite <- df_annotated %>%
   filter(gene_id %in% enhanced_translation_glia_neurite_id) %>%
@@ -747,6 +810,16 @@ enhanced_translation_glia_neurite <- df_annotated %>%
 # write_csv(enhanced_translation_glia_neurite, "./RNAseq/post_analysis_RData/enhanced_translation_glia_neurite.csv")
 
 ```
+
+### Plot Chekulaeva and SFARI overlap Venn Diagrams
+
+```{r}
+(venn_A + venn_B) / (venn_C + venn_D)
+
+ggsave("./RNAseq/plots/Venn_combined_neurite_sfari_glial.pdf", width = 12.5, height = 9)
+
+```
+
 
 ## Try Gene Ontology Enrichment Analysis
 
