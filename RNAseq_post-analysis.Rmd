@@ -591,6 +591,81 @@ ggsave("./RNAseq/plots/PCA_Astrocytes_trap.pdf",
 # SFARI OVERLAP
 
 ```{r}
+library(tidyverse)
+library(janitor)
+library(biomaRt)
+```
+
+## Prepare Gene Lists
+
+```{r}
+# * * * * * Get SFARI gene lists
+## Downloaded from https://gene.sfari.org/ (Apr 2022)
+sfari_raw <- read_csv("./RNAseq/external_data/SFARI-Gene_genes_01-13-2021release_05-17-2021export.csv") %>%
+  clean_names()
+
+# * * * * * Convert mouse lists to human genes
+mouse_mart96 <- useMart("ENSEMBL_MART_ENSEMBL", dataset = "mmusculus_gene_ensembl", 
+                   host = "https://apr2019.archive.ensembl.org")
+mouse_biomart_attributes <- listAttributes(mouse_mart96)
+
+## Enriched RNA in glial protrusions
+df_annotated <- readRDS("./RNAseq/summary_table/df_annotated.RDS")
+enriched_RNA_in_glial_protrusions_id <- df_annotated %>%
+  filter(enriched_in_protrusion >= 3) %>%
+  pull(gene_id) 
+
+enriched_RNA_in_glial_protrusions_hsap_conversion <- getBM(attributes = c("ensembl_gene_id", "hsapiens_homolog_ensembl_gene", "hsapiens_homolog_orthology_type"),
+      mart = mouse_mart96,
+      filters = "ensembl_gene_id",
+      values = enriched_RNA_in_glial_protrusions_id) %>%
+  filter(str_detect(hsapiens_homolog_ensembl_gene, "ENSG"))
+
+## Enhanced translation in glial protrusions
+df_annotated <- readRDS("./RNAseq/summary_table/df_annotated.RDS")
+enhanced_translation_in_glial_protrusions_id <- df_annotated %>%
+  filter(enhanced_translation_in_protrusion >= 3) %>%
+  pull(gene_id) 
+
+enhanced_translation_in_glial_protrusions_hsap_conversion <- getBM(attributes = c("ensembl_gene_id", "hsapiens_homolog_ensembl_gene", "hsapiens_homolog_orthology_type"),
+      mart = mouse_mart96,
+      filters = "ensembl_gene_id",
+      values = enhanced_translation_in_glial_protrusions_id) %>%
+  filter(str_detect(hsapiens_homolog_ensembl_gene, "ENSG"))
+
+```
+
+## Overlap Analysis
+
+```{r}
+## Enriched RNA in glial protrusions
+enriched_RNA_in_glial_protrusions_hsap_sfari_df <- list(
+  SFARI = sfari_raw$ensembl_id, 
+  Enriched_RNA_in_glial_protrusions = enriched_RNA_in_glial_protrusions_hsap_conversion$hsapiens_homolog_ensembl_gene)
+
+ggVennDiagram(enriched_RNA_in_glial_protrusions_hsap_sfari_df)
+
+## Enhanced translation in glial protrusions
+enhanced_translation_in_glial_protrusions_hsap_sfari_df <- list(
+  SFARI = sfari_raw$ensembl_id, 
+  Enhanced_translation_in_glial_protrusions = enhanced_translation_in_glial_protrusions_hsap_conversion$hsapiens_homolog_ensembl_gene)
+
+ggVennDiagram(enhanced_translation_in_glial_protrusions_hsap_sfari_df)
+
+## Summary dataframe 
+sfari_summary_with_glial_data <- sfari_raw %>%
+  mutate(Enriched_RNA_in_glial_protrusions = if_else(
+    ensembl_id %in% enriched_RNA_in_glial_protrusions_hsap_conversion$hsapiens_homolog_ensembl_gene, 
+    TRUE, 
+    FALSE
+  )) %>%
+  mutate(Enhanced_translation_in_glial_protrusions = if_else(
+    ensembl_id %in% enhanced_translation_in_glial_protrusions_hsap_conversion$hsapiens_homolog_ensembl_gene,
+    TRUE,
+    FALSE
+  ))
+
+# write_csv(sfari_summary_with_glial_data, "./RNAseq/post_analysis_RData/sfari_summary_with_glial_data.csv")
 
 ```
 
@@ -605,6 +680,8 @@ library(janitor)
 library(ggVennDiagram)
 
 ```
+
+## Find overlap
 
 ```{r}
 ## Get glial genes
@@ -640,7 +717,7 @@ enriched_RNA_glia_neurite <- df_annotated %>%
   filter(gene_id %in% enriched_RNA_glia_neurite_id) %>%
   dplyr::select(gene_id, gene_symbol, description)
 
-write_csv(enriched_RNA_glia_neurite, "./RNAseq/post_analysis_RData/enriched_RNA_glia_neurite.csv")
+# write_csv(enriched_RNA_glia_neurite, "./RNAseq/post_analysis_RData/enriched_RNA_glia_neurite.csv")
 
 # * * * * * Glial protrusion enhanced translation
 
@@ -655,11 +732,100 @@ enhanced_translation_glia_neurite <- df_annotated %>%
   filter(gene_id %in% enhanced_translation_glia_neurite_id) %>%
   dplyr::select(gene_id, gene_symbol, description)
 
-write_csv(enhanced_translation_glia_neurite, "./RNAseq/post_analysis_RData/enhanced_translation_glia_neurite.csv")
+# write_csv(enhanced_translation_glia_neurite, "./RNAseq/post_analysis_RData/enhanced_translation_glia_neurite.csv")
+
+```
+
+## Try Gene Ontology Enrichment Analysis
+
+```{r}
+## source TopGO script
+source("./src/runTopGO.R")
+Mmus_brain_glia_txome <- readRDS("./RNAseq/external_data/Mmus_brain_glia_txome.RDS")
+df_annotated <- readRDS("./RNAseq/summary_table/df_annotated.RDS")
+
+## Ontologies to test
+ontologies <- c("BP", "MF", "CC") %>% set_names()
+
+## Enriched RNA for both neurites and glial protrusions (n = 199)
+GO_enriched_RNA_neurite_glia <- map_dfr(ontologies, function(ontology){
+  runTopGO(ontology = ontology,
+           species = "mouse",
+           backgroundGenes = Mmus_brain_glia_txome,
+           targetedGenes = enriched_RNA_glia_neurite_id)
+}, .id = "ontology")
+
+### Plot
+
+ontology_order <- c("BP", "MF", "CC")
+ontology_colours <- c("#d1ab75", "#8fd175", "#d175b8")
+
+GO_enriched_RNA_neurite_glia %>%
+  filter(bonferroni < 0.05) %>%
+  filter(foldEnrichment > 2.5) %>%
+  filter(case_when(
+    ontology == "CC" ~ Significant > 20,
+    TRUE ~ Significant > 10
+  )) %>%
+  mutate(plot_FDR = -log10(bonferroni)) %>%
+  mutate(ontology = fct_relevel(ontology, ontology_order)) %>%
+  ggplot(aes(x = reorder(Term, plot_FDR), y = plot_FDR)) +
+  geom_segment(aes(xend = reorder(Term, plot_FDR), y = 0, yend = plot_FDR), colour = "gray70") +
+  geom_point(aes(colour = ontology), size = 4) +
+  geom_label(aes(y = plot_FDR + 0.5, label = Significant), cex = 2) + 
+  scale_colour_manual(values = ontology_colours) +
+  labs(title = "RNA enriched in both glia and neuronal protrusions (n = 199)",
+       y = "-log10 Bonferroni p-value",
+       colour = "Gene Ontology") + 
+  coord_flip() +
+  theme_classic() + 
+  theme(axis.title.y = element_blank(),
+        legend.position = "right")
+
+ggsave("./RNAseq/plots/GO_RNA-enriched-in-both-neurite-glial-protrusion.pdf",
+       width = 8, height = 5)
+
+## Enhanced translation for both neurites and glial protrusions (n = 16)
+GO_enanced_translation_neurite_glia <- map_dfr(ontologies, function(ontology){
+  runTopGO(ontology = ontology,
+           species = "mouse",
+           backgroundGenes = Mmus_brain_glia_txome,
+           targetedGenes = enhanced_translation_glia_neurite_id)
+}, .id = "ontology")
+
+### Not many signifiant terms --> not very useful indicator of anything
 
 ```
 
 
+# DAVID WEBSERVER FOR KEGG/INTERPRO
+
+```{r}
+library(tidyverse)
+```
+
+## Export Gene lists
+
+```{r}
+## Mouse brain txome background
+readRDS("./RNAseq/external_data/Mmus_brain_glia_txome.RDS") %>%
+  write_lines("~/Desktop/mouse_brain_txome.txt")
+
+## Enriched RNA in glial protrusions
+df_annotated <- readRDS("./RNAseq/summary_table/df_annotated.RDS")
+df_annotated %>%
+  filter(enriched_in_protrusion >= 3) %>%
+  pull(gene_id) %>%
+  write_lines("~/Desktop/enriched_RNA.txt")
+
+## Enhanced translation in glial protrusions
+df_annotated <- readRDS("./RNAseq/summary_table/df_annotated.RDS")
+df_annotated %>%
+  filter(enhanced_translation_in_protrusion >= 3) %>%
+  pull(gene_id) %>%
+  write_lines("~/Desktop/enhanced_translation.txt")
+
+```
 
 
 
