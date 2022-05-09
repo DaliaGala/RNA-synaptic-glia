@@ -570,16 +570,18 @@ PCA_df %>%
     compartment == "protrusion" ~ "Protrusion",
     compartment == "soma" ~ "Soma"
   )) %>%
-  ggplot(aes(x = PC1, y = PC2, colour = celltype, alpha = compartment)) +
+  ggplot(aes(x = PC1, y = PC2, colour = celltype, alpha = compartment, shape = compartment)) +
   geom_point(size = 4, stroke = 0) +
-  scale_alpha_manual(values = c(0.9, 0.4)) +
+  scale_alpha_manual(values = c(0.9, 0.6)) +
   scale_colour_ipsum() + 
   labs(title = "Principal component analysis",
        subtitle = "Astrocyte TRAP-seq libraries",
        x = "PC1: 31% Variance",
        y = "PC2: 23% Variance",
        colour = "Cell type",
-       alpha = "Compartment") +
+       shape = "Compartment") +
+  coord_cartesian(xlim = c(-150, 150), ylim = c(-125, 150)) +
+  guides(alpha = "none") +
   theme_classic()
 
 ggsave("./RNAseq/plots/PCA_Astrocytes_trap.pdf", 
@@ -690,6 +692,8 @@ sfari_summary_with_glial_data <- sfari_raw %>%
 
 ## Try Gene ontology analysis on SFARI overlaps
 
+### Background as Full human genes 
+
 - Not sure what would be the best background since SFARI genes are not probably limited to CNS transcriptome ..
 - Try full human genes?
 
@@ -730,6 +734,47 @@ GO_enhanced_translation_glia_SFARI <- map_dfr(ontologies, function(ontology){
 
 # write_csv(GO_enhanced_translation_glia_SFARI, "./RNAseq/post_analysis_RData/GO_enhanced_translation_glia_SFARI.csv")
 
+```
+
+### Background as SFARI genes 
+
+```{r}
+## source TopGO script
+source("./src/runTopGO.R")
+library(org.Hs.eg.db)
+sfari_raw <- read_csv("./RNAseq/external_data/SFARI-Gene_genes_01-13-2021release_05-17-2021export.csv") %>%
+  clean_names()
+
+## Ontologies to test
+ontologies <- c("BP", "MF", "CC") %>% set_names()
+
+## Enriched RNA in glial protrusions + SFARI (n = 51)
+enriched_RNA_glia_SFARI_id <- sfari_summary_with_glial_data %>%
+  filter(Enriched_RNA_in_glial_protrusions == TRUE) %>%
+  pull(ensembl_id)
+
+GO_enriched_RNA_glia_SFARI_SFARIBg <- map_dfr(ontologies, function(ontology){
+  runTopGO(ontology = ontology,
+           species = "human",
+           backgroundGenes = sfari_raw$ensembl_id,
+           targetedGenes = enriched_RNA_glia_SFARI_id)
+}, .id = "ontology")
+
+# write_csv(GO_enriched_RNA_glia_SFARI, "./RNAseq/post_analysis_RData/GO_enriched_RNA_glia_SFARI.csv")
+
+## Enhanced translation in glial protrusions + SFARI (n = 30)
+enhanced_translation_glia_SFARI_id <- sfari_summary_with_glial_data %>%
+  filter(Enhanced_translation_in_glial_protrusions == TRUE) %>%
+  pull(ensembl_id)
+
+GO_enhanced_translation_glia_SFARI_SFARIBg <- map_dfr(ontologies, function(ontology){
+  runTopGO(ontology = ontology,
+           species = "human",
+           backgroundGenes = sfari_raw$ensembl_id,
+           targetedGenes = enhanced_translation_glia_SFARI_id)
+}, .id = "ontology")
+
+# write_csv(GO_enhanced_translation_glia_SFARI, "./RNAseq/post_analysis_RData/GO_enhanced_translation_glia_SFARI.csv")
 ```
 
 
