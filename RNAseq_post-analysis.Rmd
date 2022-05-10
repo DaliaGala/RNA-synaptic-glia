@@ -957,6 +957,46 @@ df_annotated %>%
 
 ```
 
+# MAKE A SUMMARY DF FOR SUBMISSION
+
+```{r}
+library(tidyverse)
+library(biomaRt)
+library(janitor)
+
+```
+
+
+```{r}
+## The initial summary dataframe
+df_annotated <- readRDS("./RNAseq/summary_table/df_annotated.RDS")
+
+## Convert human SFARI genes to mouse genes and get list
+sfari_raw <- read_csv("./RNAseq/external_data/SFARI-Gene_genes_01-13-2021release_05-17-2021export.csv") %>%
+  clean_names()
+
+human_mart96 <- useMart("ENSEMBL_MART_ENSEMBL", dataset = "hsapiens_gene_ensembl", 
+                        host = "https://apr2019.archive.ensembl.org")
+human_biomart_attributes <- listAttributes(human_mart96)
+sfari_genes_mouse_converted <- getBM(attributes = c("ensembl_gene_id", "mmusculus_homolog_ensembl_gene", "mmusculus_homolog_orthology_type"),
+                                     mart = human_mart96,
+                                     filters = "ensembl_gene_id",
+                                     values = sfari_raw$ensembl_id) %>%
+  filter(str_detect(mmusculus_homolog_ensembl_gene, "EN"))
+
+## Get gene ontology terms
+mouse_mart96 <- useMart("ENSEMBL_MART_ENSEMBL", dataset = "mmusculus_gene_ensembl", 
+                        host = "https://apr2019.archive.ensembl.org")
+mouse_biomart_attributes <- listAttributes(mouse_mart96)
+mouse_GO_annotations <- getBM(attributes = c("ensembl_gene_id", "go_id", "name_1006", "definition_1006", "namespace_1003", "goslim_goa_accession", "goslim_goa_description"),
+                                     mart = mouse_mart96,
+                                     filters = "ensembl_gene_id",
+                                     values = df_annotated$gene_id)
+
+## Chekulaeva neuronal data
+
+
+```
 
 
 
