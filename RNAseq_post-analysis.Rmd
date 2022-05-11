@@ -963,6 +963,7 @@ df_annotated %>%
 library(tidyverse)
 library(biomaRt)
 library(janitor)
+library(readxl)
 
 ```
 
@@ -988,13 +989,59 @@ sfari_genes_mouse_converted <- getBM(attributes = c("ensembl_gene_id", "mmusculu
 mouse_mart96 <- useMart("ENSEMBL_MART_ENSEMBL", dataset = "mmusculus_gene_ensembl", 
                         host = "https://apr2019.archive.ensembl.org")
 mouse_biomart_attributes <- listAttributes(mouse_mart96)
-mouse_GO_annotations <- getBM(attributes = c("ensembl_gene_id", "go_id", "name_1006", "definition_1006", "namespace_1003", "goslim_goa_accession", "goslim_goa_description"),
-                                     mart = mouse_mart96,
-                                     filters = "ensembl_gene_id",
-                                     values = df_annotated$gene_id)
+mouse_gene_list <- df_annotated$gene_id %>% set_names()
+mouse_GO_annotations <- map_dfr(mouse_gene_list, function(x){
+  getBM(attributes = c("ensembl_gene_id", "go_id", "name_1006", "definition_1006", "namespace_1003", "goslim_goa_accession", "goslim_goa_description"),
+        mart = mouse_mart96,
+        filters = "ensembl_gene_id",
+        values = x)
+}, .id = "gene_id")
+
+mouse_GO_annotations <- read_tsv("~/Downloads/mart_export.txt") %>%
+  clean_names()
+mouse_GO_anno_cleaned <- mouse_GO_annotations %>%
+  mutate(GO_description = str_c(go_term_accession, go_term_name, sep = " ")) %>%
+  group_by(gene_stable_id, go_domain) %>%
+  summarise(GO_descriptions = paste0(GO_description, collapse = ", ")) %>%
+  ungroup() %>%
+  mutate(go_domain = case_when(
+    go_domain == "biological_process" ~ "GO Biological process",
+    go_domain == "molecular_function" ~ "GO Molecular function",
+    go_domain == "cellular_component" ~ "GO Cellular component"
+  )) %>%
+  filter(!is.na(go_domain)) %>%
+  pivot_wider(id_cols = gene_stable_id,
+              names_from = go_domain,
+              values_from = GO_descriptions)
+  
 
 ## Chekulaeva neuronal data
+neurite_raw <- read_excel("./RNAseq/external_data/Supplementary online tables_neurite-enriched.xlsx", skip = 1) %>%
+  clean_names()
 
+neurite_enriched_id <- neurite_raw %>%
+  filter(datasets_with_significant_neurite_enrichment_p_0_1 >= 6) %>%
+  pull(gene_id)
+
+neurite_translated_id <- neurite_raw %>%
+  filter(studies_with_neurite_ribosome_association >= 2) %>%
+  pull(gene_id)
+
+# * * * * * Combine all
+df_submission_version <- df_annotated %>%
+  mutate(SFARI_genes = if_else(
+    gene_id %in% sfari_genes_mouse_converted$mmusculus_homolog_ensembl_gene, TRUE, FALSE)) %>%
+  mutate(neurite_enriched = if_else(
+    gene_id %in% neurite_enriched_id, TRUE, FALSE)) %>%
+  mutate(neurite_translated = if_else(
+    gene_id %in% neurite_translated_id, TRUE, FALSE)) %>%
+  left_join(mouse_GO_anno_cleaned, by = c("gene_id" = "gene_stable_id"))
+
+saveRDS(df_submission_version, "./summary_table.RDS")
+
+write_tsv(df_submission_version, "./summary_table.txt")
+
+df_submission_version$Mean_TPM_across_dataset
 
 ```
 
