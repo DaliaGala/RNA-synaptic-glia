@@ -1005,7 +1005,7 @@ mouse_GO_annotations <- qread("./RNAseq/external_data/mouse_GO_annotations.qs") 
 mouse_GO_anno_cleaned <- mouse_GO_annotations %>%
   mutate(GO_description = str_c(go_term_accession, go_term_name, sep = " ")) %>%
   group_by(gene_stable_id, go_domain) %>%
-  summarise(GO_descriptions = paste0(GO_description, collapse = "; ")) %>%
+  summarise(GO_descriptions = paste0(GO_description, collapse = ", ")) %>%
   ungroup() %>%
   mutate(GO_descriptions = str_replace(GO_descriptions, ":", "")) %>%
   mutate(go_domain = case_when(
@@ -1044,6 +1044,7 @@ df_submission_version <- df_annotated %>%
 saveRDS(df_submission_version, "./summary_table.RDS")
 
 write_tsv(df_submission_version, "./summary_table.txt")
+write_csv(df_submission_version, "./summary_table_for_zegami.csv")
 
 ```
 
