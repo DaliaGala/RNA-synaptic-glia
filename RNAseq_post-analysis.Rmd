@@ -1007,6 +1007,7 @@ mouse_GO_anno_cleaned <- mouse_GO_annotations %>%
   group_by(gene_stable_id, go_domain) %>%
   summarise(GO_descriptions = paste0(GO_description, collapse = "; ")) %>%
   ungroup() %>%
+  mutate(GO_descriptions = str_replace(GO_descriptions, ":", "")) %>%
   mutate(go_domain = case_when(
     go_domain == "biological_process" ~ "GO Biological process",
     go_domain == "molecular_function" ~ "GO Molecular function",
@@ -1045,6 +1046,7 @@ saveRDS(df_submission_version, "./summary_table.RDS")
 write_tsv(df_submission_version, "./summary_table.txt")
 
 ```
+
 
 
 
