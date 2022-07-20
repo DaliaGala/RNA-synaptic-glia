@@ -177,14 +177,14 @@ plot_gene_tsne <- function(gene, palette, limit_counts){
 
 plot_gene_tsne("DIP-lambda", "red", 8)
 
-septate_junction_gene_names <- read.delim(pipe("pbpaste"), col.names = "genes") %>% pull(genes)
-map(septate_junction_gene_names, ~
-      if(.x %in% all_glia_dgem_by_gene$gene_name){
-        plot_gene_tsne(.x, "red", 2)
-      } else {
-        mtcars %>% ggplot(aes(x = cyl, y = cyl)) + labs(title = .x)
-      }) %>% wrap_plots()
-ggsave("~/Desktop/test.jpg", width = 30, height = 35)
+# septate_junction_gene_names <- read.delim(pipe("pbpaste"), col.names = "genes") %>% pull(genes)
+# map(septate_junction_gene_names, ~
+#       if(.x %in% all_glia_dgem_by_gene$gene_name){
+#         plot_gene_tsne(.x, "red", 2)
+#       } else {
+#         mtcars %>% ggplot(aes(x = cyl, y = cyl)) + labs(title = .x)
+#       }) %>% wrap_plots()
+# ggsave("~/Desktop/test.jpg", width = 30, height = 35)
 
 ## Ridge plot
 plot_gene_ridge <- function(gene){
@@ -213,22 +213,11 @@ explore_threshold <- seq(0, 100, by = 0.1) %>% set_names() %>%
                      filter(pct_exp_cell >= .x) %>% nrow()), .id = "threshold_pct")
 explore_threshold %>%
   ggplot(aes(x = as.numeric(threshold_pct), y = gene_count, group = "hi")) + 
-  geom_line()
+  geom_line() +
+  coord_cartesian(xlim = c(0, 10))
 ```
 
-
-```{r}
-df_raw_merge <- qread("~/Google Drive/df_raw_merge.qs")
-
-all_glia_dgem_by_gene %>% pull(gene_name) %>% unique() -> a
-df_raw_merge %>% pull(dmel_gene_name) %>% unique() -> b
-
-intersect(b, a) %>% length
-
-```
-
-
-
+## Glial subtype summary
 
 ```{r}
 ## Get dgem summary per glia subtype
@@ -333,7 +322,7 @@ plot_fca_support <- function(glia_cell_type, pct_cutoff){
                  type = c("potentially localised", "FCA supported"),
                  gene_count = c(
                    pull(df_localised_FCA, !!sym(.x)) %>% sum(na.rm = TRUE),
-                   filter(df_localised_FCA, !!sym("subperineurial glial cell") == TRUE) 
+                   filter(df_localised_FCA, !!sym(glia_cell_type) == TRUE) 
                    %>% pull(!!sym(.x)) %>% sum(na.rm = TRUE)
                  )
                )
@@ -369,6 +358,94 @@ df_localised_FCA %>%
   pull(dmel_gene_name) %>% head(50)
 
 
+
+```
+
+## Create gene list table for Ilan
+
+```{r}
+df_localised_FCA_supported <- filter(df_localised_FCA, Total == TRUE)
+
+df_localised_FCA %>%
+  filter(rna_in_protrusion >= 8) %>% pull(Total) %>% sum(na.rm = TRUE)
+
+## Get each categories 
+df_rna_present <- df_localised_FCA_supported %>% 
+  filter(rna_in_protrusion >= 8) %>% as_tibble()
+df_translation_present <- df_localised_FCA_supported %>%
+  filter(translation_in_protrusion >= 4) %>% as_tibble()
+df_rna_and_translation_present <- df_localised_FCA_supported %>%
+  filter(rna_in_protrusion >= 8 & translation_in_protrusion >= 4) %>% as_tibble()
+df_transcript_enriched <- df_localised_FCA_supported %>%
+  filter(enriched_in_protrusion >= 3) %>% as_tibble()
+df_translation_enriched <- df_localised_FCA_supported %>%
+  filter(enhanced_translation_in_protrusion >= 3) %>% as_tibble()
+df_enriched_transcription_and_translation <- df_localised_FCA_supported %>%
+  filter(enriched_in_protrusion >= 3 & enhanced_translation_in_protrusion >= 3) %>% as_tibble()
+
+overview_df <- tibble(
+  glial_protrusion_category = c("Transcript present (8 of 12)", 
+               "Translation present (4 of 4)", 
+               "Transcript and translation both present",
+               "Transcript enriched (3 of 4)", 
+               "Translation enriched (3 of 4)",
+               "Transcript and translation both enriched"),
+  dfs = list(
+    df_rna_present,
+    df_translation_present,
+    df_rna_and_translation_present,
+    df_transcript_enriched,
+    df_translation_enriched,
+    df_enriched_transcription_and_translation
+  )
+)
+
+filter_go_terms <- function(df, search_term){
+  df %>% 
+    dplyr::filter(
+      str_detect(go_biological_process, search_term) |
+        str_detect(go_molecular_function, search_term) |
+        str_detect(go_cellular_component, search_term)
+      )
+}
+
+get_gene_names <- function(x){
+  x %>% pull(dmel_gene_name) %>% paste0(collapse = ", ")
+}
+
+count_df <- overview_df %>%
+  mutate(total_fly_gene_count = map_dbl(dfs, ~ nrow(.x))) %>%
+  mutate(SFARI = map_dbl(dfs, ~ filter(.x, sfari_dmel == TRUE) %>% nrow())) %>%
+  mutate(RNA_binding = map_dbl(dfs, ~ filter_go_terms(.x, "RNA binding") %>% nrow())) %>%
+  mutate(RNA_stability = map_dbl(dfs, ~ filter_go_terms(.x, "RNA stability") %>% nrow())) %>%
+  mutate(actin_microtubule = map_dbl(dfs, ~ filter_go_terms(.x, "actin|microtubule") %>% nrow())) %>%
+  mutate(translation_regulation = map_dbl(dfs, ~ filter_go_terms(.x, "regulation of translation") %>% nrow())) %>%
+  mutate(ribosome_associated = map_dbl(dfs, ~ filter_go_terms(.x, "ribosome") %>% nrow())) %>%
+  mutate(synapse_localised = map_dbl(dfs, ~ filter(.x, synapse_localised == TRUE) %>% nrow())) %>%
+  mutate(synapse_organization = map_dbl(dfs, ~ filter(.x, synapse_organization == TRUE) %>% nrow())) %>%
+  mutate(synaptic_signalling = map_dbl(dfs, ~ filter(.x, synaptic_signalling == TRUE) %>% nrow())) %>%
+  mutate(locomotorly_regulation = map_dbl(dfs, ~ filter_go_terms(.x, "locomotor") %>% nrow())) %>%
+  mutate(molecular_motor_activity = map_dbl(dfs, ~ filter_go_terms(.x, "motor activity") %>% nrow())) %>%
+  dplyr::select(- dfs)
+
+gene_name_df <- overview_df %>%
+  mutate(total_fly_gene_count = map_dbl(dfs, ~ nrow(.x))) %>%
+  mutate(total_fly_genes = map_chr(dfs, ~ get_gene_names(.x))) %>% 
+  mutate(SFARI = map_chr(dfs, ~ filter(.x, sfari_dmel == TRUE) %>% get_gene_names())) %>%
+  mutate(RNA_binding = map_chr(dfs, ~ filter_go_terms(.x, "RNA binding") %>% get_gene_names())) %>%
+  mutate(RNA_stability = map_chr(dfs, ~ filter_go_terms(.x, "RNA stability") %>% get_gene_names())) %>%
+  mutate(actin_microtubule = map_chr(dfs, ~ filter_go_terms(.x, "actin|microtubule") %>% get_gene_names())) %>%
+  mutate(translation_regulation = map_chr(dfs, ~ filter_go_terms(.x, "regulation of translation") %>% get_gene_names())) %>%
+  mutate(ribosome_associated = map_chr(dfs, ~ filter_go_terms(.x, "ribosome") %>% get_gene_names())) %>%
+  mutate(synapse_localised = map_chr(dfs, ~ filter(.x, synapse_localised == TRUE) %>% get_gene_names())) %>%
+  mutate(synapse_organization = map_chr(dfs, ~ filter(.x, synapse_organization == TRUE) %>% get_gene_names())) %>%
+  mutate(synaptic_signalling = map_chr(dfs, ~ filter(.x, synaptic_signalling == TRUE) %>% get_gene_names())) %>%
+  mutate(locomotorly_regulation = map_chr(dfs, ~ filter_go_terms(.x, "locomotor") %>% get_gene_names())) %>%
+  mutate(molecular_motor_activity = map_chr(dfs, ~ filter_go_terms(.x, "motor activity") %>% get_gene_names())) %>%
+  dplyr::select(- dfs)
+
+write_tsv(count_df, "~/Desktop/Dmel_interesting-GO-categories_with-FCA-support1.txt")
+write_tsv(gene_name_df, "~/Desktop/Dmel_interesting-GO-categories_with-FCA-support2.txt")
 
 ```
 
