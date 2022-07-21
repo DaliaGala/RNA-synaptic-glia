@@ -259,7 +259,7 @@ plot_gene_subtype <- function(gene){
     coord_flip(ylim = c(0, 100))
 }
 
-plot_gene_subtype("pros")
+plot_gene_subtype("nrv2")
 
 glia_type_dgem_by_gene %>%
   group_by(glia_cell_type) %>%
@@ -284,7 +284,8 @@ glia_type_dgem_by_gene %>%
 
 ```{r}
 ##
-df_raw_merge <- qread("./data/glia_localised_RNA_dmel.qs")
+df_raw_merge <- qread("./data/glia_localised_RNA_dmel.qs") %>%
+  mutate(mimic_or_crimic = if_else(dmel_gene_name %in% mimic_and_crimic_gene_names, TRUE, FALSE))
 
 ## 
 plot_fca_support <- function(glia_cell_type, pct_cutoff){
@@ -351,23 +352,17 @@ plot_fca_support <- function(glia_cell_type, pct_cutoff){
 df_localised_FCA <- plot_fca_support("Total", 2.5)[[1]]
 plot_fca_support("Total", 2.5)[[2]]
 
-
-df_localised_FCA %>% 
-  filter(`subperineurial glial cell` == TRUE) %>%
-  arrange(desc(mean_rna_enrichment_l2fc)) %>%
-  pull(dmel_gene_name) %>% head(50)
-
-
-
 ```
 
 ## Create gene list table for Ilan
 
 ```{r}
-df_localised_FCA_supported <- filter(df_localised_FCA, Total == TRUE)
-
-df_localised_FCA %>%
-  filter(rna_in_protrusion >= 8) %>% pull(Total) %>% sum(na.rm = TRUE)
+df_localised_FCA_supported <- df_localised_FCA %>%
+  filter(`subperineurial glial cell` == TRUE | 
+           `perineurial glial sheath` == TRUE |
+           `adult brain perineurial glial cell` == TRUE |
+           `ensheathing glial cell` == TRUE) %>%
+  filter(mimic_or_crimic == TRUE)
 
 ## Get each categories 
 df_rna_present <- df_localised_FCA_supported %>% 
@@ -444,11 +439,42 @@ gene_name_df <- overview_df %>%
   mutate(molecular_motor_activity = map_chr(dfs, ~ filter_go_terms(.x, "motor activity") %>% get_gene_names())) %>%
   dplyr::select(- dfs)
 
-write_tsv(count_df, "~/Desktop/Dmel_interesting-GO-categories_with-FCA-support1.txt")
-write_tsv(gene_name_df, "~/Desktop/Dmel_interesting-GO-categories_with-FCA-support2.txt")
+
+
+write_tsv(count_df, "~/Desktop/Dmel_interesting-GO-categories_with-FCA-support1_sub_mimic.txt")
+write_tsv(gene_name_df, "~/Desktop/Dmel_interesting-GO-categories_with-FCA-support2_sub_mimic.txt")
 
 ```
 
+## How many genes have Mimic/Crimic/CPTI
+
+```{r}
+## CRIMIC
+crimic_raw <- read_tsv("./data/Flybase/CRIMIC_raw.txt") %>% janitor::clean_names()
+crimic_raw %>% collapse::descr(cols = "name")
+
+crimic_gene_names <- crimic_raw %>%
+  filter(str_detect(inserted_element, "CRIMIC")) %>%
+  filter(stocks != "-") %>%
+  pull(affected_genes) %>%
+  str_split(pattern = " <newline> ") %>% unlist() %>% unique()
+
+## MIMIC
+mimic_raw <- read_tsv("./data/Flybase/MIMIC_raw.txt") %>% janitor::clean_names()
+mimic_raw %>% collapse::descr(cols = "inserted_element")
+
+mimic_gene_names <- mimic_raw %>%
+  filter(str_detect(inserted_element, "Mi\\{MIC\\}")) %>%
+  filter(stocks != "-") %>%
+  pull(affected_genes) %>%
+  str_split(pattern = " <newline> ") %>% unlist() %>% unique()
+
+## Both MIMIC and CRIMIC
+mimic_and_crimic_gene_names <- c(mimic_gene_names, crimic_gene_names) %>% unique()
+
+
+
+```
 
 
 
